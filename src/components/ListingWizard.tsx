@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SAMPLE_FLEET } from '../data/fleet'
 import { useReducedMotion } from '../lib/motion'
+import { MagneticButton } from './MagneticButton'
 import { fleetAverageForClass, formatUSD } from '../lib/pricing'
 import { siteConfig } from '../site.config'
 import { useAppData } from '../state/AppState'
@@ -652,14 +653,14 @@ export function ListingWizard(): JSX.Element {
               Continue
             </button>
           ) : (
-            <button
+            <MagneticButton
               type="button"
               data-testid="wizard-publish"
               className="btn-primary"
               onClick={handlePublish}
             >
               Publish listing
-            </button>
+            </MagneticButton>
           )}
 
           <p className="label-micro ml-auto hidden sm:block">Nothing here is booked</p>

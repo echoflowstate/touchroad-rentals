@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Calculator } from '../components/Calculator'
+import { MagneticButton } from '../components/MagneticButton'
 import { EmptyState } from '../components/EmptyState'
 import {
   IconChevronLeft,
@@ -192,14 +193,14 @@ export function CarDetail(): JSX.Element {
             onDatesChange={(start, end) => setDates({ start, end })}
           />
 
-          <button
+          <MagneticButton
             type="button"
             data-testid="request-button"
             className="btn-primary mt-4 w-full"
             onClick={handleRequest}
           >
             Request this car
-          </button>
+          </MagneticButton>
 
           <p className="label-micro mt-2.5 text-center">
             Requests in this preview are stored in your browser only.
