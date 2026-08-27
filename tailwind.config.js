@@ -282,6 +282,24 @@ export default {
           '0%': { opacity: '0', transform: 'translateX(-22px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
+        // A2: one crossing, then the stage is clear again.
+        // A3: the sun acknowledging a set of dates.
+        'sun-ack': {
+          '0%': { transform: 'scale(1)' },
+          '38%': { transform: 'scale(1.16)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'hint-in': {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'gull-cross': {
+          '0%': { transform: 'translate(-8vw, 0)', opacity: '0' },
+          '10%': { opacity: '1' },
+          '50%': { transform: 'translate(50vw, -22px)' },
+          '88%': { opacity: '1' },
+          '100%': { transform: 'translate(108vw, 6px)', opacity: '0' },
+        },
         'popover-in': {
           '0%': { opacity: '0', transform: 'translateY(-8px) scale(0.985)' },
           '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
@@ -323,6 +341,9 @@ export default {
         'month-in-right': 'month-in-right 260ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'month-in-left': 'month-in-left 260ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'popover-in': 'popover-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'gull-cross': 'gull-cross 13s linear both',
+        'sun-ack': 'sun-ack 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'hint-in': 'hint-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both',
       },
     },
   },

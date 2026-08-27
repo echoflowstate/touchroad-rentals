@@ -14,7 +14,17 @@ import { RoadTraffic } from './RoadTraffic'
  * content that sits on top of it is a normal child.
  */
 
-export function CoastalHero({ children }: { children: ReactNode }): JSX.Element {
+export function CoastalHero({
+  children,
+  sunPulse = 0,
+}: {
+  children: ReactNode
+  /**
+   * A3: bumped whenever the search card takes a set of dates. The sun gives one
+   * small nod to say it heard, and only when it changes.
+   */
+  sunPulse?: number
+}): JSX.Element {
   const reduced = useReducedMotion()
   const sceneRef = useRef<HTMLDivElement | null>(null)
   const [parallax, setParallax] = useState({ x: 0, y: 0 })
@@ -67,12 +77,18 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
     <div ref={sceneRef} className="relative isolate min-h-[620px] overflow-hidden pb-20 sm:pb-10 md:min-h-[720px] md:pb-0">
       {/* ---- the scene ---- */}
       <div aria-hidden="true" className="absolute inset-0 -z-10">
-        {/* Sky */}
+        {/*
+          Sky, water and sand all read the Coast Day. The hero opens the page at
+          dawn and warms as it is scrolled past, so the scene is never out of
+          step with the light on the rest of the page. The fallbacks keep the
+          original palette if the day is not running.
+        */}
         <div
+          data-day="sky"
           className="absolute inset-0"
           style={{
-            background:
-              'linear-gradient(178deg, #FFF6E6 0%, #FFEFD6 34%, #FDE6CD 58%, #F7F2E9 100%)',
+            backgroundImage:
+              'linear-gradient(178deg, #FFF6E6 0%, #FFEFD6 44%, #FDE6CD 74%, #F7F2E9 100%)',
           }}
         />
 
@@ -83,11 +99,20 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
         >
           <div className="relative">
             <div
-              className={`absolute -inset-16 rounded-full bg-gold/40 blur-2xl ${
+              data-day="glow-color"
+              className={`absolute -inset-16 rounded-full blur-2xl ${
                 reduced ? '' : 'animate-sun-pulse'
               }`}
+              style={{ backgroundColor: 'rgba(255, 198, 92, 0.4)' }}
             />
-            <div className="relative h-16 w-16 rounded-full bg-gold sm:h-24 sm:w-24" />
+            <div
+              key={reduced ? 'sun' : `sun-${sunPulse}`}
+              data-day="sun-color"
+              data-testid="hero-sun"
+              className={`relative h-16 w-16 rounded-full bg-gold sm:h-24 sm:w-24 ${
+                reduced || sunPulse === 0 ? '' : 'animate-sun-ack'
+              }`}
+            />
           </div>
         </div>
 
@@ -97,9 +122,10 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
           style={layer(8)}
         >
           <div
+            data-day="water"
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(180deg, #AEE5DC 0%, #7FD4C8 55%, #3FA694 100%)',
+              backgroundImage: 'linear-gradient(180deg, #AEE5DC 0%, #3FA694 100%)',
             }}
           />
           {/* Glints on the water */}
@@ -132,6 +158,7 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
           focusable="false"
         >
           <path
+            data-day="beach-fill"
             d="M0 30c160 22 320 22 480 4s320-26 480-6 300 26 480 14v24H0z"
             fill="#F7F2E9"
           />
@@ -146,9 +173,10 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
 
         {/* Sand foreground */}
         <div
+          data-day="beach"
           className="absolute inset-x-0 bottom-0 top-[70%]"
           style={{
-            background: 'linear-gradient(180deg, #F7F2E9 0%, #F3EADB 62%, #EFE7D8 100%)',
+            backgroundImage: 'linear-gradient(180deg, #F7F2E9 0%, #F3EADB 70%, #EFE7D8 100%)',
           }}
         />
 

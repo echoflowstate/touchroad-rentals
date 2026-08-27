@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '../lib/motion'
+import { useScrollProgress } from '../lib/scrollProgress'
 
 /**
  * M1: a dashed road running down the page that fills as you scroll, with a small
@@ -13,35 +13,9 @@ import { useReducedMotion } from '../lib/motion'
 
 export function RoadLine({ className }: { className?: string }): JSX.Element {
   const reduced = useReducedMotion()
-  const [progress, setProgress] = useState(0)
-  const frame = useRef<number | null>(null)
-
-  useEffect(() => {
-    if (reduced) {
-      setProgress(1)
-      return
-    }
-    const read = () => {
-      frame.current = null
-      const doc = document.documentElement
-      const scrollable = doc.scrollHeight - window.innerHeight
-      const next = scrollable > 0 ? window.scrollY / scrollable : 0
-      setProgress(Math.min(1, Math.max(0, next)))
-    }
-    const onScroll = () => {
-      if (frame.current !== null) return
-      frame.current = window.requestAnimationFrame(read)
-    }
-    read()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      if (frame.current !== null) window.cancelAnimationFrame(frame.current)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
-  }, [reduced])
-
+  // The same reader the Coast Day's sun uses, so the car and the sun advance on
+  // exactly the same value rather than on two listeners that drift apart.
+  const progress = useScrollProgress(1)
   const pct = Math.round(progress * 1000) / 10
 
   return (

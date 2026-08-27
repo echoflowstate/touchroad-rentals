@@ -4,6 +4,8 @@ import { EmptyState } from '../components/EmptyState'
 import { FilterBar } from '../components/FilterBar'
 import { ListingCard } from '../components/ListingCard'
 import { MileMarker, RoadHairline } from '../components/RoadLine'
+import { PalmShadow } from '../components/AmbientLife'
+import { CoastDay } from '../components/CoastDay'
 import { Reveal } from '../components/Reveal'
 import { SearchRow } from '../components/SearchRow'
 import { SkeletonGrid } from '../components/Skeleton'
@@ -25,6 +27,8 @@ export function Browse(): JSX.Element {
   const [loading, setLoading] = useState(delay > 0)
   // Bumped whenever a fresh set of results lands, so the cascade replays.
   const [runId, setRunId] = useState(0)
+  // A3: bumped whenever the planner hands back a range, so the hero sun nods.
+  const [sunPulse, setSunPulse] = useState(0)
   const timer = useRef<number | null>(null)
 
   const startLoad = useCallback(() => {
@@ -135,8 +139,11 @@ export function Browse(): JSX.Element {
 
   return (
     <div>
+      {/* A1: one day of light runs the length of this page as it is scrolled. */}
+      <CoastDay />
+
       {/* M3 / E1: the coastal scene, with the search card floating on the sand. */}
-      <CoastalHero>
+      <CoastalHero sunPulse={sunPulse}>
         <div className="shell relative pb-28 pt-10 md:pb-36 md:pt-16">
           <p className="label-micro text-emerald">{siteConfig.region}</p>
           <h1 className="mt-3 max-w-3xl font-display text-[34px] font-extrabold leading-[1.04] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
@@ -158,13 +165,20 @@ export function Browse(): JSX.Element {
             filters={filters}
             onChange={(next) => commit(next, false)}
             onSearch={() => startLoad()}
+            onDatesPicked={() => setSunPulse((n) => n + 1)}
           />
         </div>
       </CoastalHero>
 
-      <WaveDivider to="white" className="bg-sand" />
+      <WaveDivider to="white" className="day-ground" wrapperDay="ground" wrapperAlpha="0.87" />
 
-      <section className="relative band-white pb-14 pt-2 md:pb-20">
+      <section
+        data-day="surface"
+        data-day-alpha="0.85"
+        className="relative day-surface overflow-hidden pb-14 pt-2 md:pb-20"
+      >
+        {/* A2: the one palm on the site, throwing its shadow over this edge. */}
+        <PalmShadow />
         <RoadHairline />
         <div className="shell relative">
           <Reveal className="flex items-center justify-between gap-4">
@@ -210,9 +224,9 @@ export function Browse(): JSX.Element {
         </div>
       </section>
 
-      <WaveDivider to="aqua" flip className="bg-white" />
+      <WaveDivider to="aqua" flip className="day-surface" wrapperDay="surface" wrapperAlpha="0.85" />
 
-      <section className="band-aqua py-12 md:py-16">
+      <section data-day="wash" data-day-alpha="0.84" className="day-wash py-12 md:py-16">
         <div className="shell">
           <Reveal className="card-flat flex flex-col gap-2 px-6 py-6 md:px-8 md:py-7">
             <p className="font-display text-xl font-extrabold tracking-[-0.02em] text-ink md:text-2xl">
@@ -226,7 +240,7 @@ export function Browse(): JSX.Element {
         </div>
       </section>
 
-      <WaveDivider to="sand" className="bg-emerald-wash" />
+      <WaveDivider to="sand" className="day-wash" wrapperDay="wash" wrapperAlpha="0.84" />
     </div>
   )
 }

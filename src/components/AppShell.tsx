@@ -34,6 +34,8 @@ function DesktopNav() {
   return (
     <header
       data-testid="desktop-nav"
+      data-day="ground"
+      data-day-alpha="0.95"
       className="sticky top-[29px] z-30 hidden border-b border-line-soft bg-sand/95 backdrop-blur md:block"
     >
       <div className="shell flex h-[72px] items-center gap-6">
@@ -171,7 +173,31 @@ function BottomTabs() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-sand">
+    <div className="isolate flex min-h-[100dvh] flex-col bg-sand">
+      {/*
+        A1: the Coast Day paints here. It is a fixed layer at a negative z-index
+        inside an isolated root, which puts it above the page ground and below
+        every piece of content without any of them needing a stacking context of
+        their own. Browse portals the scene in; every other route leaves it
+        empty and the static palette stands.
+      */}
+      <div
+        id="day-layer"
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10"
+      />
+
+      {/*
+        A2: ambient actors go above the page rather than behind it. A gull
+        drifting behind an opaque band is a gull nobody ever sees. It sits under
+        the navigation and the tab bar and takes no pointer events.
+      */}
+      <div
+        id="ambient-layer"
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-20 overflow-hidden"
+      />
+
       <a
         href="#main"
         className="focusable sr-only left-3 top-9 z-50 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card focus:not-sr-only focus:absolute"
