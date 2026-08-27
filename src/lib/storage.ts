@@ -1,4 +1,5 @@
-import { siteConfig } from '../site.config'
+import { CITIES, siteConfig } from '../site.config'
+import { VEHICLE_CLASSES } from '../types'
 import type { Listing, Session, Trip } from '../types'
 
 /**
@@ -47,16 +48,62 @@ function removeKey(key: string): void {
   }
 }
 
+const TRANSMISSIONS = ['Automatic', 'Manual']
+const FUELS = ['Gas', 'Hybrid', 'Electric']
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+
+function isText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== ''
+}
+
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+/**
+ * Checks every field the interface actually renders, not just the ones that
+ * happen to be convenient. A record that reaches a component missing its
+ * vehicle class takes the whole page down with it, so a partial or outdated
+ * row is dropped here instead.
+ */
 function isListing(value: unknown): value is Listing {
   if (!value || typeof value !== 'object') return false
   const l = value as Partial<Listing>
   return (
-    typeof l.id === 'string' &&
-    typeof l.year === 'number' &&
-    typeof l.make === 'string' &&
-    typeof l.model === 'string' &&
-    typeof l.pricePerDay === 'number' &&
-    typeof l.city === 'string'
+    isText(l.id) &&
+    isNumber(l.year) &&
+    isText(l.make) &&
+    isText(l.model) &&
+    isNumber(l.pricePerDay) &&
+    isNumber(l.seats) &&
+    isText(l.hostName) &&
+    typeof l.blurb === 'string' &&
+    (CITIES as readonly string[]).includes(l.city as string) &&
+    (VEHICLE_CLASSES as readonly string[]).includes(l.vehicleClass as string) &&
+    TRANSMISSIONS.includes(l.transmission as string) &&
+    FUELS.includes(l.fuel as string)
+  )
+}
+
+/** Same reasoning as isListing: a trip row is only kept if it can render. */
+function isTrip(value: unknown): value is Trip {
+  if (!value || typeof value !== 'object') return false
+  const t = value as Partial<Trip>
+  return (
+    isText(t.id) &&
+    isText(t.listingId) &&
+    isText(t.listingTitle) &&
+    isText(t.hostName) &&
+    (CITIES as readonly string[]).includes(t.city as string) &&
+    isText(t.startDate) &&
+    ISO_DATE.test(t.startDate as string) &&
+    isText(t.endDate) &&
+    ISO_DATE.test(t.endDate as string) &&
+    isNumber(t.days) &&
+    isNumber(t.rate) &&
+    isNumber(t.subtotal) &&
+    isNumber(t.total) &&
+    isNumber(t.createdAt)
   )
 }
 
@@ -87,7 +134,7 @@ export function clearSession(): void {
 export function loadTrips(): Trip[] {
   const raw = readJSON<unknown[]>(TRIPS_KEY, [])
   if (!Array.isArray(raw)) return []
-  return raw.filter((t): t is Trip => !!t && typeof (t as Trip).id === 'string')
+  return raw.filter(isTrip)
 }
 
 export function saveTrips(trips: Trip[]): void {

@@ -61,6 +61,12 @@ export function Browse(): JSX.Element {
 
   const activeCity = applied.city === 'all' ? null : applied.city
   const nearby = activeCity ? NEARBY_CITY[activeCity] : null
+  // Only send someone up the road if there is genuinely something waiting there,
+  // otherwise the suggestion bounces them between two empty cities.
+  const nearbyHasMatches = useMemo(
+    () => (nearby ? applyFilters(listings, { ...applied, city: nearby }).length > 0 : false),
+    [listings, applied, nearby],
+  )
 
   function renderEmptyState(): JSX.Element {
     if (activeCity && nearby && applied.price !== 'any' && wouldMatchWithoutPrice(listings, applied)) {
@@ -68,7 +74,7 @@ export function Browse(): JSX.Element {
       return (
         <EmptyState
           title={`Nothing under ${ceiling} in ${activeCity} those days - try nearby ${nearby}.`}
-          body={`There are cars parked in ${activeCity} on those dates. None of them sit under ${ceiling} a day.`}
+          body={`There are cars parked in ${activeCity}. None of them sit under ${ceiling} a day.`}
           action={
             <button
               type="button"
@@ -82,11 +88,11 @@ export function Browse(): JSX.Element {
       )
     }
 
-    if (activeCity && nearby) {
+    if (activeCity && nearby && nearbyHasMatches) {
       return (
         <EmptyState
-          title={`No cars in ${activeCity} those days.`}
-          body={`${nearby} is the closest stop with sample listings, a short drive up the road.`}
+          title={`Nothing in ${activeCity} matches those filters.`}
+          body={`${nearby} is the closest stop with a match, a short drive up the road.`}
           action={
             <button
               type="button"

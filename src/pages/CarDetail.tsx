@@ -174,7 +174,9 @@ export function CarDetail(): JSX.Element {
           </div>
 
           <p className="mt-5 text-sm font-semibold text-ink">
-            Listed by {listing.hostName} - sample host
+            {isUserListing
+              ? `Listed by ${listing.hostName} - your listing`
+              : `Listed by ${listing.hostName} - sample host`}
           </p>
 
           <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-ink-muted">

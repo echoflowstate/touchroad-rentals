@@ -194,6 +194,7 @@ const SHAPES: Record<VehicleClass, (props: ShapeProps) => JSX.Element> = {
 }
 
 function slugFor(vehicleClass: VehicleClass): string {
+  if (typeof vehicleClass !== 'string') return 'car'
   return vehicleClass.toLowerCase().replace(/\s+/g, '-')
 }
 
@@ -204,7 +205,8 @@ export function VehicleSilhouette({
 }: VehicleSilhouetteProps): JSX.Element {
   const isHero = variant === 'hero'
   const gradientId = `tr-grad-${slugFor(vehicleClass)}`
-  const Shape = SHAPES[vehicleClass]
+  // An unrecognized class draws a car rather than throwing the page away.
+  const Shape = SHAPES[vehicleClass] ?? CarShape
   const wrapperClass = [
     'relative overflow-hidden rounded-2xl',
     isHero ? 'aspect-[16/9]' : 'aspect-[16/10]',

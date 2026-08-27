@@ -35,7 +35,7 @@ const HOST_STEPS: Step[] = [
   },
   {
     title: 'Get paid',
-    body: 'You set the price, and you keep the earnings.',
+    body: 'You set the price, you keep the earnings.',
   },
 ]
 
@@ -84,7 +84,7 @@ export function HowItWorks(): JSX.Element {
 
     return [
       { label: 'Lowest sample rate', value: formatUSD(lowest) },
-      { label: 'Cities in the preview', value: String(cities) },
+      { label: 'Cities with sample cars', value: String(cities) },
       { label: 'Service fees', value: '$0' },
     ]
   }, [])
@@ -175,20 +175,6 @@ export function HowItWorks(): JSX.Element {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="card-flat mt-10 px-5 py-5 md:mt-12">
           <p className="text-sm leading-relaxed text-ink-muted">{siteConfig.comingSoon}</p>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span
-              aria-hidden={false}
-              className="inline-flex items-center rounded-full border border-line bg-white px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted"
-            >
-              App Store
-            </span>
-            <span
-              aria-hidden={false}
-              className="inline-flex items-center rounded-full border border-line bg-white px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted"
-            >
-              Google Play
-            </span>
-          </div>
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">

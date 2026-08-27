@@ -22,6 +22,16 @@ if (siteConfig.noindex) {
 
 document.title = siteConfig.metaTitle
 
+// Keep the head in step with the config rather than letting index.html drift from it.
+const describedBy: [string, string][] = [
+  ['meta[name="description"]', 'content'],
+  ['meta[property="og:description"]', 'content'],
+  ['meta[name="twitter:description"]', 'content'],
+]
+for (const [selector, attribute] of describedBy) {
+  document.querySelector(selector)?.setAttribute(attribute, siteConfig.metaDescription)
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>

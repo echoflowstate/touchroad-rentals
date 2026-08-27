@@ -2,7 +2,7 @@
 // only needs these two calls to walk the shipped files.
 import { readdirSync, readFileSync } from 'node:fs'
 import { SAMPLE_FLEET } from '../data/fleet'
-import { CITIES } from '../site.config'
+import { CITIES, siteConfig } from '../site.config'
 
 declare const process: { cwd(): string }
 
@@ -270,5 +270,60 @@ describe('the sample fleet', () => {
       expect(listing.hostName.indexOf(' ')).toBe(-1)
       expect(CITIES.indexOf(listing.city)).toBeGreaterThanOrEqual(0)
     }
+  })
+})
+
+/** The two files whose job is to search for these words are not themselves UI. */
+const SHIPPED = OTHERS.filter((file) => file.path !== 'scripts/audit.sh')
+
+function joined(files: ScannedFile[]): string {
+  return files.map((file) => file.lines.join('\n')).join('\n')
+}
+
+describe('store names', () => {
+  // A bordered pill reading "App Store" is a store badge in everything but file
+  // format, so the names are allowed only inside the coming-soon sentence.
+  it('names a store only inside the coming soon line', () => {
+    const stray = hits(SHIPPED, (line) => {
+      const lower = line.toLowerCase()
+      const names = ['app store', 'google play']
+      const named = names.find((name) => lower.indexOf(name) !== -1)
+      if (!named) return null
+      if (line.indexOf(siteConfig.comingSoon) !== -1) return null
+      if (lower.indexOf('comingsoon') !== -1) return null
+      return `bare store name "${named}"`
+    })
+    expect(stray).toEqual([])
+  })
+
+  it('still says the coming soon line somewhere', () => {
+    expect(joined(SHIPPED)).toContain(siteConfig.comingSoon)
+  })
+})
+
+describe('honest labels', () => {
+  it('keeps the sample host suffix off a listing the user published', () => {
+    const rendering = SHIPPED.filter((file) =>
+      file.lines.some((line) => line.indexOf('- sample host') !== -1),
+    )
+    expect(rendering.length, 'no file renders the sample host suffix').toBeGreaterThan(0)
+    for (const file of rendering) {
+      const text = file.lines.join('\n')
+      expect(
+        text.indexOf('isUserListing') !== -1 || text.indexOf("source === 'sample'") !== -1,
+        `${file.path} renders "- sample host" without checking the listing source`,
+      ).toBe(true)
+    }
+  })
+
+  it('phrases the host payout the way the founders asked', () => {
+    expect(joined(SHIPPED)).toContain('You set the price, you keep the earnings.')
+  })
+
+  it('never puts a percentage next to the payout', () => {
+    const payout = hits(SHIPPED, (line) =>
+      /keep the earnings/.test(line) && /\d\s*%/.test(line) ? 'percentage beside the payout' : null,
+    )
+    expect(payout).toEqual([])
   })
 })

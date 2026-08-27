@@ -47,7 +47,12 @@ function validateStep(step: number, draft: ListingDraft): DraftErrors {
     const year = Number(draft.year)
     if (draft.year.trim() === '') {
       found.year = 'Add the model year.'
-    } else if (!Number.isFinite(year) || year < MIN_YEAR || year > MAX_YEAR) {
+    } else if (
+      !Number.isFinite(year) ||
+      !Number.isInteger(year) ||
+      year < MIN_YEAR ||
+      year > MAX_YEAR
+    ) {
       found.year = `Use a year between ${MIN_YEAR} and ${MAX_YEAR}.`
     }
     if (draft.make.trim() === '') found.make = 'Add the make, like Toyota.'
@@ -103,7 +108,7 @@ export function ListingWizard(): JSX.Element {
     (hostFullName: string) => {
       const blurb = draft.blurb.trim() || `Listed by a neighbor in ${draft.city}.`
       const listing = addListing({
-        year: Number(draft.year),
+        year: Math.round(Number(draft.year)),
         make: draft.make.trim(),
         model: draft.model.trim(),
         vehicleClass: draft.vehicleClass,
