@@ -141,9 +141,38 @@ async function main() {
   await wizardToStepThree(dp)
   await shot(dp, 'still-1440-wizard-step3')
 
+  // Publish it, then request a car, so Account shows real rows and not two empty states.
+  await publishListing(dp)
+  await shot(dp, 'still-1440-wizard-published')
+
+  await requestCar(dp, civic)
+  await shot(dp, 'still-1440-request-confirmation')
+  findings.checks.requestConfirmation = await dp
+    .locator('[data-testid="request-confirmation"]')
+    .innerText()
+    .catch(() => null)
+  await dp.keyboard.press('Escape')
+  await dp.waitForTimeout(400)
+
   await dp.goto(BASE + '/account', { waitUntil: 'domcontentloaded' })
   await settle(dp)
   await shot(dp, 'still-1440-account')
+  findings.checks.myCarsRows = await dp.locator('[data-testid="my-cars-item"]').count()
+
+  const tripsTab = dp.getByRole('tab', { name: /trips/i })
+  if (await tripsTab.count()) {
+    await tripsTab.click()
+    await dp.waitForTimeout(400)
+    await shot(dp, 'still-1440-account-trips')
+    findings.checks.tripRows = await dp.locator('[data-testid="trip-item"]').count()
+  }
+
+  // The published card has to be visible in Browse next to the samples.
+  await dp.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
+  await settle(dp)
+  findings.checks.yourListingBadges = await dp.locator('[data-testid="your-badge"]').count()
+  findings.checks.browseCardCount = await dp.locator('[data-testid="listing-card"]').count()
+  await shot(dp, 'still-1440-browse-with-user-listing')
 
   await desktop.close()
 
@@ -216,15 +245,18 @@ async function main() {
   // total roll on the detail calculator
   await pp.goto(`${BASE}/car/${civic}`, { waitUntil: 'domcontentloaded' })
   await settle(pp)
+  await showTotal(pp)
   await cap('total-before')
   const dropOff = pp.locator('input[type="date"]').nth(1)
   const start = await pp.locator('input[type="date"]').first().inputValue()
   const later = shiftISO(start, 5)
   await dropOff.fill(later)
   await dropOff.dispatchEvent('change')
-  await pp.waitForTimeout(120)
+  await showTotal(pp)
+  await pp.waitForTimeout(90)
   await cap('total-rolling')
-  await pp.waitForTimeout(700)
+  await pp.waitForTimeout(800)
+  await showTotal(pp)
   await cap('total-after')
   findings.checks.rolledTotal = await pp
     .locator('[data-testid="odometer-value"]')
@@ -316,23 +348,63 @@ async function signIn(page, name) {
   }
 }
 
+async function fillWizardBasics(page) {
+  await page.fill('#wizard-year', '2020')
+  await page.fill('#wizard-make', 'Mazda')
+  await page.fill('#wizard-model', 'CX-5')
+  await page.selectOption('#wizard-class', 'SUV')
+  await page.selectOption('#wizard-seats', '5')
+  await page.locator('[data-testid="wizard-next"]').click()
+  await page.waitForTimeout(320)
+  await page.selectOption('#wizard-city', 'Destin')
+  await page.locator('[data-testid="wizard-next"]').click()
+  await page.waitForTimeout(320)
+}
+
 async function wizardToStepThree(page) {
-  const setField = async (label, value) => {
-    const field = page.getByLabel(new RegExp(label, 'i')).first()
-    if (!(await field.count())) return
-    const tag = await field.evaluate((el) => el.tagName.toLowerCase())
-    if (tag === 'select') await field.selectOption({ label: value }).catch(() => {})
-    else await field.fill(value)
-  }
-  await setField('year', '2020')
-  await setField('make', 'Mazda')
-  await setField('model', 'CX-5')
-  await setField('class', 'SUV')
+  await fillWizardBasics(page)
+  await page.fill('#wizard-pricePerDay', '33')
+  await page.waitForTimeout(200)
+  await showWizard(page)
+}
+
+/** Put the wizard header in frame rather than whatever the last focus scrolled to. */
+async function showWizard(page) {
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="wizard"]')
+    if (!el) return
+    const top = el.getBoundingClientRect().top + window.scrollY
+    window.scrollTo({ top: Math.max(0, top - 96), behavior: 'instant' })
+  })
+  await page.waitForTimeout(250)
+}
+
+async function publishListing(page) {
   await page.locator('[data-testid="wizard-next"]').click()
-  await page.waitForTimeout(350)
-  await setField('city', 'Destin')
-  await page.locator('[data-testid="wizard-next"]').click()
-  await page.waitForTimeout(350)
+  await page.waitForTimeout(320)
+  await showWizard(page)
+  await page.locator('[data-testid="wizard-publish"]').click()
+  await page.waitForTimeout(600)
+  await showWizard(page)
+}
+
+/** Request a car so Account > Trips has something real in it. */
+async function requestCar(page, listingId) {
+  await page.goto(`${BASE}/car/${listingId}`, { waitUntil: 'domcontentloaded' })
+  await settle(page)
+  await page.locator('[data-testid="request-button"]').click()
+  await page.waitForTimeout(700)
+}
+
+/** Scroll so the calculator total row is in frame for the roll shots. */
+async function showTotal(page) {
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="calc-total"]')
+    if (!el) return
+    const top = el.getBoundingClientRect().top + window.scrollY
+    window.scrollTo({ top: Math.max(0, top - 420), behavior: 'instant' })
+  })
+  await page.waitForTimeout(200)
 }
 
 main().catch((err) => {

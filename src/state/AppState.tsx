@@ -55,11 +55,20 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [signInOpen, setSignInOpen] = useState(false)
   const afterSignIn = useRef<(() => void) | null>(null)
 
+  // Only reach for storage once there is something to store, so a browser with
+  // cleared data stays cleared until the person actually publishes or requests.
+  const listingsTouched = useRef(userListings.length > 0)
+  const tripsTouched = useRef(trips.length > 0)
+
   useEffect(() => {
+    if (!listingsTouched.current && userListings.length === 0) return
+    listingsTouched.current = true
     saveUserListings(userListings)
   }, [userListings])
 
   useEffect(() => {
+    if (!tripsTouched.current && trips.length === 0) return
+    tripsTouched.current = true
     saveTrips(trips)
   }, [trips])
 
