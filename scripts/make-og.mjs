@@ -1,12 +1,14 @@
 /**
- * Renders public/og.png (1200x630) in the Coastal Light language, plus the
- * PNG app icons the manifest points at. Uses the pre-installed Playwright
- * chromium; never downloads a browser.
+ * Renders public/og.png (1200x630) in the Coastal Light language. The badge and
+ * the app icons come from scripts/make-brand.mjs, which draws them from the real
+ * React marks; this file only composes the social scene around one. Uses the
+ * pre-installed Playwright chromium; never downloads a browser.
  *
  * Run: node scripts/make-og.mjs
  */
 import { chromium } from 'playwright'
 import { existsSync, statSync } from 'node:fs'
+import { fontFaceCSS, loadMarks } from './lib/render-marks.mjs'
 
 const SAND = '#F7F2E9'
 const INK = '#0F2E28'
@@ -14,33 +16,6 @@ const EMERALD = '#0B7458'
 const CORAL = '#FF6B4A'
 const GOLD = '#FFC65C'
 const AQUA = '#7FD4C8'
-
-/** The Touch Road badge, same geometry as the React LogoMark. */
-function markSVG(size) {
-  return `
-<svg width="${size}" height="${size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FFF3DC"/><stop offset="52%" stop-color="#FDE8C8"/><stop offset="100%" stop-color="${SAND}"/>
-    </linearGradient>
-    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="${AQUA}"/><stop offset="100%" stop-color="${EMERALD}"/>
-    </linearGradient>
-    <linearGradient id="road" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0%" stop-color="${INK}"/><stop offset="100%" stop-color="${EMERALD}"/>
-    </linearGradient>
-    <clipPath id="clip"><rect width="64" height="64" rx="15"/></clipPath>
-  </defs>
-  <g clip-path="url(#clip)">
-    <rect width="64" height="64" fill="url(#sky)"/>
-    <circle cx="45.5" cy="17.5" r="7.5" fill="${GOLD}"/>
-    <circle cx="45.5" cy="17.5" r="10.5" fill="${GOLD}" opacity="0.28"/>
-    <path d="M64 46.5c-5.4 0-8.2-3.6-11.6-7.4-3.2-3.6-6.9-6.1-11.6-5.2-4 .8-6.3 3.7-7.2 7.2 2.5-2.1 5.3-2.6 8.1-1.2 2.6 1.3 4 3.6 6.2 6.1 2.9 3.3 6.6 5.9 11.5 6.2H64z" fill="url(#wave)"/>
-    <path d="M-2 64c2.5-13 9-23.5 19.5-31C25.5 27.2 34 24.6 43 24.2l1.2 9.4c-7.6.3-14.4 2.4-20 6.5C16.6 45.9 11.6 53.9 9.6 64z" fill="url(#road)"/>
-    <path d="M2.8 64C5.5 52.6 11.4 43.4 20.7 36.8c6.4-4.6 14-7.1 22.7-7.5" fill="none" stroke="#FFF6E4" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 5"/>
-  </g>
-</svg>`
-}
 
 const CAR_SVG = `
 <svg width="392" height="176" viewBox="0 0 200 90" xmlns="http://www.w3.org/2000/svg">
@@ -54,8 +29,9 @@ const CAR_SVG = `
   <circle cx="146" cy="72" r="14" fill="${INK}"/><circle cx="146" cy="72" r="6" fill="${AQUA}"/>
 </svg>`
 
-const OG_HTML = `<!doctype html>
+const ogHTML = (brand) => `<!doctype html>
 <html><head><meta charset="utf-8"/><style>
+  ${fontFaceCSS()}
   * { margin:0; padding:0; box-sizing:border-box; }
   body { width:1200px; height:630px; overflow:hidden;
          font-family: Outfit, "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif; }
@@ -102,7 +78,7 @@ const OG_HTML = `<!doctype html>
   <div class="car">${CAR_SVG}</div>
   <div class="content">
     <div class="lockup">
-      ${markSVG(76)}
+      ${brand.markSVG(brand.configuredMark, 76)}
       <div>
         <div class="word w1">Touch Road</div>
         <div class="word w2">Rentals</div>
@@ -118,13 +94,6 @@ const OG_HTML = `<!doctype html>
   </div>
 </div></body></html>`
 
-function iconHTML(size) {
-  return `<!doctype html><html><head><meta charset="utf-8"/><style>
-    *{margin:0;padding:0}body{width:${size}px;height:${size}px;overflow:hidden}
-    svg{display:block;width:${size}px;height:${size}px}
-  </style></head><body>${markSVG(size)}</body></html>`
-}
-
 async function launch() {
   try {
     return await chromium.launch()
@@ -134,26 +103,20 @@ async function launch() {
 }
 
 async function main() {
+  const brand = await loadMarks()
   const browser = await launch()
   const page = await browser.newPage()
 
   await page.setViewportSize({ width: 1200, height: 630 })
-  await page.setContent(OG_HTML, { waitUntil: 'load' })
+  await page.setContent(ogHTML(brand), { waitUntil: 'load' })
+  await page.evaluate(() => document.fonts.ready)
   await page.waitForTimeout(250)
   await page.screenshot({ path: 'public/og.png' })
-  console.log('wrote public/og.png')
-
-  for (const size of [192, 512]) {
-    await page.setViewportSize({ width: size, height: size })
-    await page.setContent(iconHTML(size), { waitUntil: 'load' })
-    await page.waitForTimeout(120)
-    await page.screenshot({ path: `public/icon-${size}.png`, omitBackground: true })
-    console.log(`wrote public/icon-${size}.png`)
-  }
+  console.log(`wrote public/og.png (${brand.configuredMark})`)
 
   await browser.close()
 
-  for (const file of ['public/og.png', 'public/icon-192.png', 'public/icon-512.png']) {
+  for (const file of ['public/og.png']) {
     if (!existsSync(file) || statSync(file).size < 1000) {
       throw new Error(`${file} did not render`)
     }
