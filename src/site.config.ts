@@ -3,6 +3,8 @@
  * Every render reads from here - nothing hard-codes the brand name.
  */
 
+import type { BrandMark } from './components/marks'
+
 export const CITIES = [
   'Pensacola',
   'Gulf Breeze',
@@ -55,6 +57,14 @@ export const siteConfig = {
   metaTitle: 'Touch Road Rentals - rent for less on the Emerald Coast. Preview.',
   metaDescription:
     'Touch Road Rentals is a preview of a peer-to-peer car rental app for the Emerald Coast. Browse sample listings, price a trip with no booking fees, and try the listing flow.',
+
+  /**
+   * Which of the three logo studio marks ships. L1 Horizon, L2 TR Monogram,
+   * L3 Key to the Coast. Changing this one line moves the nav, the tab bar, the
+   * favicon set and the social image together; run `npm run brand` to redraw
+   * the image files afterwards.
+   */
+  brandMark: 'L1' as BrandMark,
 
   /** Flip to true to emit <meta name="robots" content="noindex"> at runtime. */
   noindex: false,

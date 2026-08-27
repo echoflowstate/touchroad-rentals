@@ -13,6 +13,8 @@
     --dur-quick: 180ms;
     --dur-base: 260ms;
     --dur-slow: 420ms;
+    /* A1: the Coast Day overrides this while the Home page is mounted. */
+    --shadow-card: 0 1px 2px rgba(47, 36, 20, 0.04), 0 8px 20px rgba(47, 36, 20, 0.06);
   }
 
   html {
@@ -66,24 +68,6 @@
     color: inherit;
   }
 
-  /* iOS and Safari render date inputs oddly without this normalization. */
-  input[type='date'] {
-    -webkit-appearance: none;
-    appearance: none;
-    min-height: 48px;
-    background-color: #ffffff;
-  }
-
-  input[type='date']::-webkit-date-and-time-value {
-    text-align: left;
-    margin: 0;
-  }
-
-  input[type='date']::-webkit-calendar-picker-indicator {
-    opacity: 0.6;
-    cursor: pointer;
-  }
-
   img,
   svg {
     max-width: 100%;
@@ -92,7 +76,8 @@
 
 @layer components {
   .card {
-    @apply rounded-3xl border border-line-soft bg-white shadow-card transition-all duration-300 ease-coast;
+    @apply rounded-3xl border border-line-soft bg-white transition-all duration-300 ease-coast;
+    box-shadow: var(--shadow-card);
   }
 
   .card-flat {
@@ -286,6 +271,24 @@
 
   .shell {
     @apply mx-auto w-full max-w-shell px-4 sm:px-6;
+  }
+
+  /*
+   * A1: the Home page's band grounds. These are the resting colours; the Coast
+   * Day paints over them as the page is scrolled, and they are what the band
+   * falls back to if the day is not running. The opacity is what lets the sun
+   * show faintly through as it travels.
+   */
+  .day-surface {
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+
+  .day-wash {
+    background-color: rgba(234, 244, 241, 0.84);
+  }
+
+  .day-ground {
+    background-color: rgba(247, 242, 233, 0.87);
   }
 }
 

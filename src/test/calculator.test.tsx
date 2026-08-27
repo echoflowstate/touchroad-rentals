@@ -1,7 +1,8 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
-import { addDays } from '../lib/pricing'
+import { longDateLabel } from '../lib/calendar'
+import { addDays, todayISO } from '../lib/pricing'
 import { AppDataProvider } from '../state/AppState'
 
 const CIVIC_29 = 'sample-civic-fortwalton'
@@ -24,10 +25,22 @@ function line(element: HTMLElement | null): string {
   return (element?.textContent ?? '').replace(/\s+/g, ' ').trim()
 }
 
-function setDropOff(days: number): void {
-  const pickUp = screen.getByLabelText('Pick up') as HTMLInputElement
-  const dropOff = screen.getByLabelText('Drop off') as HTMLInputElement
-  fireEvent.change(dropOff, { target: { value: addDays(pickUp.value, days) } })
+/**
+ * Moves the drop-off out through the trip planner, which is the only way dates
+ * are entered now. The desktop popover applies the range on the second pick and
+ * closes itself.
+ */
+async function setDropOff(days: number): Promise<void> {
+  const start = todayISO()
+  fireEvent.click(screen.getByRole('button', { name: /Trip dates/ }))
+  const popover = await screen.findByTestId('date-popover')
+  fireEvent.click(within(popover).getByRole('gridcell', { name: longDateLabel(start) }))
+  fireEvent.click(
+    within(popover).getByRole('gridcell', { name: longDateLabel(addDays(start, days)) }),
+  )
+  await waitFor(() => {
+    expect(screen.queryByTestId('date-popover')).not.toBeInTheDocument()
+  })
 }
 
 beforeEach(() => {
@@ -57,7 +70,7 @@ describe('the trip calculator', () => {
     renderApp(`/car/${CIVIC_29}`)
     expect(screen.getByTestId('odometer-value').textContent).toBe('$87')
 
-    setDropOff(5)
+    await setDropOff(5)
 
     await waitFor(() => {
       expect(screen.getByTestId('odometer-value').textContent).toBe('$145')
@@ -77,7 +90,7 @@ describe('the trip calculator', () => {
   it('prices the $55 Mustang over four days at $220', async () => {
     renderApp(`/car/${MUSTANG_55}`)
 
-    setDropOff(4)
+    await setDropOff(4)
 
     await waitFor(() => {
       expect(screen.getByTestId('odometer-value').textContent).toBe('$220')
