@@ -31,17 +31,18 @@ for term in "${banned[@]}"; do
 done
 
 echo "== 2. em dash and en dash =="
-EM=$(printf '—'); EN=$(printf '–')
-for ch in "$EM" "$EN"; do
+EM=$(printf '\xe2\x80\x94'); EN=$(printf '\xe2\x80\x93')
+for pair in "em-dash:$EM" "en-dash:$EN"; do
+  label="${pair%%:*}"; ch="${pair#*:}"
   hits=$(grep -rnI --exclude-dir=node_modules --exclude-dir=dist \
     --exclude="$(basename "$0")" -- "$ch" "${SCAN[@]}" 2>/dev/null || true)
   count=$(printf '%s' "$hits" | grep -c . || true)
-  printf '  %-22s %s\n' "$(printf '%s' "$ch" | od -An -tx1 | tr -d ' ')" "$count"
+  printf '  %-22s %s\n' "$label" "$count"
   if [ "$count" != "0" ]; then FAIL=1; printf '%s\n' "$hits"; fi
 done
 
 echo "== 3. app store links =="
-for term in "apps.apple.com" "play.google.com" "itunes.apple" "app-store" "googleplay"; do
+for term in "apps.apple"".com" "play.google"".com" "itunes.""apple" "app-""store" "google""play"; do
   hits=$(grep -rniI --exclude-dir=node_modules --exclude-dir=dist \
     --exclude="$(basename "$0")" -- "$term" "${SCAN[@]}" 2>/dev/null || true)
   count=$(printf '%s' "$hits" | grep -c . || true)

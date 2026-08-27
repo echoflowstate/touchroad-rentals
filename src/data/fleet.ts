@@ -4,7 +4,7 @@ import type { Listing } from '../types'
  * Twelve seeded vehicles. Budget-first and coastal-real: every one of these is
  * a demonstration record, badged "Sample listing" wherever it renders.
  * Host names are first names only, and no listing makes a claim about
- * condition, coverage, or anything the preview cannot stand behind.
+ * condition, upkeep, or anything the preview cannot stand behind.
  */
 export const SAMPLE_FLEET: Listing[] = [
   {
