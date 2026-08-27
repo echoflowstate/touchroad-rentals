@@ -6,34 +6,38 @@
         "scrollWidth": 360,
         "clientWidth": 360,
         "offenders": [
-          "div.absolute left-1/2 top-[-42%] h-[150%] w-[125%] max-w-[980px]",
-          "div.hero-glow",
+          "div.absolute -inset-16 rounded-full bg-gold/40 blur-2xl animate-",
+          "path.[object SVGAnimatedString]",
+          "path.[object SVGAnimatedString]",
           "button.chip shrink-0 ",
           "button.chip shrink-0 ",
-          "div.pointer-events-none absolute inset-x-[-18%] bottom-[7%] h-[7",
-          "div.pointer-events-none absolute inset-x-[-18%] bottom-[7%] h-[7"
+          "div.pointer-events-none absolute inset-x-[-18%] bottom-[6%] h-[7"
         ]
       },
       "/how-it-works": {
         "scrollWidth": 360,
         "clientWidth": 360,
         "offenders": [
-          "div.absolute left-1/2 top-[-30%] h-[150%] w-[120%] max-w-[900px]",
-          "div.hero-glow"
+          "div.absolute -inset-12 rounded-full bg-gold/35 blur-2xl animate-",
+          "path.[object SVGAnimatedString]",
+          "path.[object SVGAnimatedString]"
         ]
       },
       "/host": {
         "scrollWidth": 360,
         "clientWidth": 360,
         "offenders": [
-          "div.absolute left-1/2 top-[-42%] h-[150%] w-[130%] max-w-[880px]",
-          "div.hero-glow"
+          "div.absolute -inset-12 rounded-full bg-gold/35 blur-2xl animate-",
+          "path.[object SVGAnimatedString]",
+          "path.[object SVGAnimatedString]"
         ]
       },
       "/account": {
         "scrollWidth": 360,
         "clientWidth": 360,
-        "offenders": []
+        "offenders": [
+          "span.pointer-events-none absolute -right-6 -top-6 h-28 w-28 round"
+        ]
       },
       "/car/sample-clubcar-maryesther": {
         "scrollWidth": 360,
@@ -45,17 +49,26 @@
       "/": {
         "scrollWidth": 1440,
         "clientWidth": 1440,
-        "offenders": []
+        "offenders": [
+          "path.[object SVGAnimatedString]",
+          "path.[object SVGAnimatedString]"
+        ]
       },
       "/how-it-works": {
         "scrollWidth": 1440,
         "clientWidth": 1440,
-        "offenders": []
+        "offenders": [
+          "path.[object SVGAnimatedString]",
+          "path.[object SVGAnimatedString]"
+        ]
       },
       "/host": {
         "scrollWidth": 1440,
         "clientWidth": 1440,
-        "offenders": []
+        "offenders": [
+          "path.[object SVGAnimatedString]",
+          "path.[object SVGAnimatedString]"
+        ]
       },
       "/account": {
         "scrollWidth": 1440,
@@ -80,6 +93,7 @@
     "yourListingBadges": 1,
     "browseCardCount": 13,
     "bottomTabsVisible": true,
+    "filmstripScrollHeight": 3058,
     "rolledTotal": "$145",
     "reducedMotionCards": 12,
     "reducedMotionTotal": "$87",

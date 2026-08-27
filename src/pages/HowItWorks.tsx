@@ -2,6 +2,10 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { SAMPLE_FLEET } from '../data/fleet'
 import { formatUSD } from '../lib/pricing'
+import { MileMarker } from '../components/RoadLine'
+import { Reveal } from '../components/Reveal'
+import { SunBand } from '../components/CoastalHero'
+import { WaveDivider } from '../components/WaveDivider'
 import { siteConfig } from '../site.config'
 
 interface Step {
@@ -43,11 +47,11 @@ interface StepColumnProps {
   heading: string
   lede: string
   steps: Step[]
-  tone: 'navy' | 'brand'
+  tone: 'ink' | 'emerald'
 }
 
 function StepColumn({ heading, lede, steps, tone }: StepColumnProps): JSX.Element {
-  const circle = tone === 'navy' ? 'bg-navy text-white' : 'bg-brand text-white'
+  const circle = tone === 'ink' ? 'bg-ink text-white' : 'bg-emerald text-white'
 
   return (
     <section className="card p-5 sm:p-6">
@@ -90,24 +94,19 @@ export function HowItWorks(): JSX.Element {
   }, [])
 
   return (
-    <div className="pb-16">
-      <section className="relative bg-navy">
-        <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(168deg, #0a0f1c 0%, #111a2e 62%, #182440 100%)' }}
-          />
-        </div>
-
-        <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-10 sm:px-6 md:pb-14 md:pt-14">
-          <h1 className="font-display text-[30px] font-extrabold leading-[1.08] tracking-[-0.03em] text-white sm:text-4xl md:text-5xl">
-            How it works
+    <div>
+      <SunBand>
+        <div className="shell relative pb-16 pt-12 md:pb-20 md:pt-16">
+          <MileMarker>How it works</MileMarker>
+          <h1 className="mt-4 font-display text-[32px] font-extrabold leading-[1.05] tracking-[-0.03em] text-ink sm:text-4xl md:text-5xl">
+            Rent from your neighbors.
           </h1>
-          <p className="mt-3 font-mono text-[13px] uppercase tracking-[0.12em] text-brand-300">
+          <p className="mt-3 font-display text-lg font-bold tracking-[-0.01em] text-emerald sm:text-xl">
             {siteConfig.neighborLine}
           </p>
         </div>
-      </section>
+      </SunBand>
+      <WaveDivider to="white" className="bg-sand" />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mt-8 grid grid-cols-1 gap-4 md:mt-10 md:grid-cols-2 md:gap-6">
@@ -115,13 +114,13 @@ export function HowItWorks(): JSX.Element {
             heading="For renters"
             lede="Three steps from a car parked down the street to the keys in your hand."
             steps={RENTER_STEPS}
-            tone="navy"
+            tone="ink"
           />
           <StepColumn
             heading="For hosts"
             lede="Three steps from a car sitting in your driveway to a car out earning."
             steps={HOST_STEPS}
-            tone="brand"
+            tone="emerald"
           />
         </div>
 
@@ -131,46 +130,35 @@ export function HowItWorks(): JSX.Element {
         </p>
       </div>
 
-      <section className="relative mt-10 overflow-hidden bg-navy md:mt-14">
-        <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(150deg, #111a2e 0%, #0a0f1c 55%, #182440 100%)' }}
-          />
-          <div className="absolute left-1/2 top-[-30%] h-[150%] w-[120%] max-w-[900px] -translate-x-1/2">
-            <div className="hero-glow" />
-          </div>
-        </div>
+      <WaveDivider to="aqua" flip className="bg-white" />
+      <section className="band-aqua py-14 md:py-20">
+        <div className="shell">
+          <Reveal>
+            <MileMarker>Why cheaper?</MileMarker>
+            <h2 className="mt-4 font-display text-[28px] font-extrabold tracking-[-0.02em] text-ink sm:text-3xl">
+              No counter, no lot, no fee stack.
+            </h2>
+            <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-ink-muted sm:text-base">
+              These are cars that are already parked. Nobody staffs a rental counter for them,
+              nobody lights a lot overnight, and nobody runs a shuttle out to one. The neighbor who
+              owns the car sets a nightly rate, and that rate is the whole number. Nothing is added
+              at the end, so the figure on the card is the figure you pay.
+            </p>
+          </Reveal>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
-          <h2 className="font-display text-[26px] font-extrabold tracking-[-0.02em] text-white sm:text-3xl">
-            Why cheaper?
-          </h2>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-white/75 sm:text-base">
-            These are cars that belong to neighbors, and most of them are already parked when you
-            need one. There is no rental counter to staff, no lot to light through the night, and no
-            shuttle bus running loops out to a terminal. A host picks a nightly rate that makes
-            sense for a car that would otherwise sit still, and that rate is the number printed on
-            the card. Nothing is stacked on top at the end, which is why the fees line reads $0
-            instead of a list. The math in this preview is plain arithmetic, nightly rate times
-            days, and you can watch it add up before you request a thing.
-          </p>
-
-          <dl className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-            {facts.map((fact) => (
-              <div
-                key={fact.label}
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3"
-              >
-                <dt className="label-micro text-brand-300">{fact.label}</dt>
-                <dd className="num mt-1 font-display text-2xl font-extrabold text-white">
-                  {fact.value}
-                </dd>
-              </div>
+          <dl className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {facts.map((fact, index) => (
+              <Reveal key={fact.label} delay={index * 70}>
+                <div className="card-flat h-full px-5 py-5">
+                  <dt className="label-micro">{fact.label}</dt>
+                  <dd className="num mt-2 text-3xl font-extrabold text-ink">{fact.value}</dd>
+                </div>
+              </Reveal>
             ))}
           </dl>
         </div>
       </section>
+      <WaveDivider to="sand" className="bg-emerald-wash" />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="card-flat mt-10 px-5 py-5 md:mt-12">

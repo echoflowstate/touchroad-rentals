@@ -132,6 +132,14 @@ async function main() {
   await settle(dp)
   await shot(dp, 'still-1440-how-it-works')
 
+  // The logo at every size it actually ships at, for the mark proof sheet.
+  await dp.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
+  await settle(dp)
+  const navLogo = dp.locator('header a[aria-label*="Touch Road"]').first()
+  if (await navLogo.count()) {
+    await shot(dp, 'logo-nav', { clip: await clipOf(navLogo, 12) })
+  }
+
   // Sign in, then walk the wizard to step 3 for the still.
   await dp.goto(BASE + '/host', { waitUntil: 'domcontentloaded' })
   await settle(dp)
@@ -211,53 +219,45 @@ async function main() {
   await settle(pp)
   await shot(pp, 'still-390-account')
 
-  // ---------- 8 frame interaction filmstrip ----------
+  // ---------- 8 frame scroll filmstrip ----------
+  // Shows M1 (the road line filling, car marker travelling) and M2 (wave
+  // dividers caught mid-transition) down the length of Browse.
+  const strip = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+  const sp = await strip.newPage()
+  watch(sp, 'filmstrip')
+  await sp.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
+  await settle(sp, 1800)
+  const docHeight = await sp.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)
+  for (let i = 0; i < 8; i += 1) {
+    const y = Math.round((docHeight * i) / 7)
+    await sp.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y)
+    await sp.waitForTimeout(420)
+    await shot(sp, `filmstrip-${String(i + 1).padStart(2, '0')}-scroll-${y}`)
+  }
+  findings.checks.filmstripScrollHeight = docHeight
+  await strip.close()
+
+  // ---------- interaction frames ----------
   await pp.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
   await settle(pp)
-  let frame = 0
-  const cap = async (note) => {
-    frame += 1
-    await shot(pp, `filmstrip-${String(frame).padStart(2, '0')}-${note}`)
-  }
-  await cap('browse-idle')
-
-  // chip toggle
   const chip = pp.getByRole('button', { name: /under \$30/i }).first()
   if (await chip.count()) {
     await chip.click()
-    await pp.waitForTimeout(90)
-    await cap('chip-pressed')
     await settle(pp, 700)
-    await cap('chip-applied')
-  } else {
-    await cap('chip-missing')
-    await cap('chip-missing-2')
+    await shot(pp, 'still-390-chip-active')
   }
 
-  // tab switch
-  const howTab = pp.locator('[data-testid="bottom-tabs"] a').nth(1)
-  await howTab.click()
-  await pp.waitForTimeout(90)
-  await cap('tab-switch-mid')
-  await settle(pp, 600)
-  await cap('tab-switch-done')
-
-  // total roll on the detail calculator
   await pp.goto(`${BASE}/car/${civic}`, { waitUntil: 'domcontentloaded' })
   await settle(pp)
   await showTotal(pp)
-  await cap('total-before')
+  await shot(pp, 'still-390-zero-fee-moment')
   const dropOff = pp.locator('input[type="date"]').nth(1)
   const start = await pp.locator('input[type="date"]').first().inputValue()
-  const later = shiftISO(start, 5)
-  await dropOff.fill(later)
+  await dropOff.fill(shiftISO(start, 5))
   await dropOff.dispatchEvent('change')
+  await pp.waitForTimeout(900)
   await showTotal(pp)
-  await pp.waitForTimeout(90)
-  await cap('total-rolling')
-  await pp.waitForTimeout(800)
-  await showTotal(pp)
-  await cap('total-after')
+  await shot(pp, 'still-390-total-rolled')
   findings.checks.rolledTotal = await pp
     .locator('[data-testid="odometer-value"]')
     .innerText()

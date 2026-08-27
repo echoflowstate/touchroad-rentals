@@ -78,7 +78,7 @@ export function EarningsTeaser(): JSX.Element {
             step={1}
             value={days}
             onChange={(event) => setDays(Number(event.target.value))}
-            className="focusable mt-1.5 h-[48px] w-full cursor-pointer accent-brand"
+            className="focusable mt-1.5 h-[48px] w-full cursor-pointer accent-emerald"
           />
         </div>
 
@@ -116,7 +116,7 @@ export function EarningsTeaser(): JSX.Element {
         </button>
       ) : null}
 
-      <div className="mt-5 rounded-xl border border-line bg-surface px-4 py-4">
+      <div className="mt-5 rounded-xl border border-line bg-sand px-4 py-4">
         <p className="label-micro">Rough monthly estimate</p>
         <p
           data-testid="earnings-result"

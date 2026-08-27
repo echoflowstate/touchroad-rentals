@@ -22,16 +22,21 @@ function SignedOut({ onSignIn }: { onSignIn: () => void }): JSX.Element {
   return (
     <section className="mx-auto w-full max-w-2xl">
       <div
-        className="relative overflow-hidden rounded-3xl px-6 py-10 text-center sm:px-10 sm:py-12"
-        style={{ background: 'linear-gradient(158deg, #0a0f1c 0%, #111a2e 54%, #182440 100%)' }}
+        className="relative overflow-hidden rounded-4xl border border-line-soft px-6 py-10 text-center shadow-card sm:px-10 sm:py-12"
+        style={{
+          background: 'linear-gradient(168deg, #FFF6E6 0%, #FFEEDA 52%, #F7F2E9 100%)',
+        }}
       >
-        <span aria-hidden="true" className="hero-glow opacity-70" />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-gold/45 blur-2xl"
+        />
         <div className="relative">
-          <p className="label-micro text-brand-300">Preview account</p>
-          <h1 className="mt-2 font-display text-3xl font-extrabold text-white sm:text-4xl">
+          <p className="label-micro text-emerald">Preview account</p>
+          <h1 className="mt-2 font-display text-3xl font-extrabold text-ink sm:text-4xl">
             Account
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/70">
+          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-muted">
             This is a preview sign-in. It stores a first name in this browser and nothing else.
             No password, no code, and nothing leaves this device.
           </p>
@@ -45,11 +50,11 @@ function SignedOut({ onSignIn }: { onSignIn: () => void }): JSX.Element {
         <p className="label-micro">What signing in unlocks</p>
         <ul className="mt-3 space-y-2.5 text-sm leading-relaxed text-ink-muted">
           <li className="flex gap-2.5">
-            <IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
+            <IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald" />
             <span>Publishing a car of your own, tagged as your listing.</span>
           </li>
           <li className="flex gap-2.5">
-            <IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
+            <IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald" />
             <span>Keeping the trips you request here, with their dates and totals.</span>
           </li>
         </ul>
@@ -100,7 +105,7 @@ function MyCarRow({
           type="button"
           aria-label={`Edit ${title}`}
           onClick={() => onEdit(listing)}
-          className="focusable grid h-11 w-11 place-items-center rounded-xl border border-line text-ink-muted transition-colors hover:bg-surface hover:text-ink"
+          className="focusable grid h-11 w-11 place-items-center rounded-xl border border-line text-ink-muted transition-colors hover:bg-sand hover:text-ink"
         >
           <IconPencil className="h-5 w-5" />
         </button>
@@ -108,7 +113,7 @@ function MyCarRow({
           type="button"
           aria-label={`Remove ${title}`}
           onClick={() => onRemove(listing.id)}
-          className="focusable grid h-11 w-11 place-items-center rounded-xl border border-line text-ink-muted transition-colors hover:bg-surface hover:text-red-600"
+          className="focusable grid h-11 w-11 place-items-center rounded-xl border border-line text-ink-muted transition-colors hover:bg-sand hover:text-red-600"
         >
           <IconTrash className="h-5 w-5" />
         </button>
@@ -342,7 +347,7 @@ function TripRow({ trip, listing }: { trip: Trip; listing: Listing | undefined }
           />
         ) : null}
         <div className="min-w-0 flex-1">
-          <span className="badge bg-navy/[0.08] text-navy">Requested - preview</span>
+          <span className="badge bg-emerald-tint text-emerald-deep">Requested - preview</span>
           <p className="mt-1.5 truncate font-display text-base font-bold text-ink">
             {trip.listingTitle}
           </p>
@@ -467,7 +472,7 @@ function Account(): JSX.Element {
         <div className="flex items-center gap-3 sm:gap-4">
           <span
             aria-hidden="true"
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-navy font-display text-lg font-extrabold text-white"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-ink font-display text-lg font-extrabold text-white"
           >
             {initial}
           </span>

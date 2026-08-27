@@ -31,7 +31,7 @@ export function RequestSheet({
       title="Request sent"
       footer={
         <div className="flex flex-col gap-2 sm:flex-row-reverse">
-          <button type="button" className="btn-navy sm:flex-1" onClick={onClose}>
+          <button type="button" className="btn-ink sm:flex-1" onClick={onClose}>
             Done
           </button>
           <Link to="/account?tab=trips" className="btn-ghost sm:flex-1" onClick={onClose}>
@@ -41,7 +41,7 @@ export function RequestSheet({
       }
     >
       <div data-testid="request-confirmation" className="text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-mint/10 text-mint">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-coral-tint text-coral-text">
           <IconCheck className="h-8 w-8" />
         </span>
 

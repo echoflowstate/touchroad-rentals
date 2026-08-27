@@ -10,7 +10,7 @@ export function SkeletonCard(): JSX.Element {
         <div className="skeleton h-4 w-24 rounded-full" />
         <div className="skeleton h-4 w-3/4" />
         <div className="skeleton h-3 w-1/2" />
-        <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
+        <div className="mt-2 flex items-center justify-between border-t border-line-soft pt-3">
           <div className="skeleton h-6 w-20" />
           <div className="skeleton h-4 w-4 rounded-full" />
         </div>
@@ -23,7 +23,7 @@ export function SkeletonGrid({ count = 6 }: { count?: number }): JSX.Element {
   return (
     <div
       aria-hidden="true"
-      className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
+      className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
     >
       {Array.from({ length: count }, (_unused, index) => (
         <SkeletonCard key={index} />

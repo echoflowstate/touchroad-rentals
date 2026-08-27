@@ -28,6 +28,13 @@ function chipClass(active: boolean): string {
 }
 
 export function FilterBar({ filters, onChange, resultCount }: FilterBarProps): JSX.Element {
+  // E4: how many filters are actually narrowing the board right now.
+  const activeCount =
+    (filters.price !== 'any' ? 1 : 0) +
+    (filters.vehicleClass !== 'all' ? 1 : 0) +
+    (filters.seatsFivePlus ? 1 : 0) +
+    (filters.automaticOnly ? 1 : 0)
+
   function setPrice(value: PriceFilter) {
     onChange({ ...filters, price: value })
   }
@@ -105,9 +112,22 @@ export function FilterBar({ filters, onChange, resultCount }: FilterBarProps): J
         </div>
       </div>
 
-      <p className="label-micro pt-1">
-        {resultCount} {resultCount === 1 ? 'car' : 'cars'}
-      </p>
+      <div className="flex items-center gap-3 pt-1">
+        <p className="label-micro">
+          {resultCount} {resultCount === 1 ? 'car' : 'cars'}
+        </p>
+        {activeCount > 0 ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-tint px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-emerald-deep">
+            <span
+              aria-hidden="true"
+              className="grid h-4 w-4 place-items-center rounded-full bg-emerald text-[9px] font-bold leading-none text-white"
+            >
+              {activeCount}
+            </span>
+            {activeCount === 1 ? 'filter on' : 'filters on'}
+          </span>
+        ) : null}
+      </div>
     </section>
   )
 }

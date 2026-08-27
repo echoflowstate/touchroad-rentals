@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SAMPLE_FLEET } from '../data/fleet'
 import { useReducedMotion } from '../lib/motion'
+import { MagneticButton } from './MagneticButton'
 import { fleetAverageForClass, formatUSD } from '../lib/pricing'
 import { siteConfig } from '../site.config'
 import { useAppData } from '../state/AppState'
@@ -77,6 +78,71 @@ function FieldError({ id, message }: { id: string; message?: string }): JSX.Elem
     <p id={id} role="alert" className="mt-1.5 text-[13px] font-medium text-red-600">
       {message}
     </p>
+  )
+}
+
+
+/** The marker that rides the wizard's road as the steps complete. */
+function WizardCar(): JSX.Element {
+  return (
+    <svg width="30" height="16" viewBox="0 0 40 20" aria-hidden="true" focusable="false">
+      <path
+        d="M3 14c0-2 1-3.2 2.8-3.7l3.6-1 3.6-3.2c1-.9 2.3-1.4 3.7-1.4h5.4c1.9 0 3.7.9 4.9 2.4l2.6 3.2 4 1c1.7.4 2.4 1.5 2.4 3.2V15c0 .9-.7 1.6-1.6 1.6H4.6C3.7 16.6 3 15.9 3 15z"
+        fill="#0B7458"
+      />
+      <path d="M13 8.4c.7-.6 1.5-.9 2.4-.9h4.2c1.5 0 2.8.6 3.8 1.8l1.6 2H11z" fill="#AEE5DC" />
+      <circle cx="12" cy="16.4" r="3" fill="#0F2E28" />
+      <circle cx="28" cy="16.4" r="3" fill="#0F2E28" />
+    </svg>
+  )
+}
+
+
+/** E7: the publish confirmation, with the car driving the width of the toast. */
+function PublishToast({ title }: { title: string }): JSX.Element | null {
+  const reduced = useReducedMotion()
+  const [open, setOpen] = useState(true)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setOpen(false), 4200)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  if (!open) return null
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--tab-bar-height)+env(safe-area-inset-bottom,0px)+18px)] z-40 flex justify-center px-4 md:bottom-8"
+    >
+      <div
+        className={`relative w-full max-w-sm overflow-hidden rounded-2xl border border-line-soft bg-white px-4 py-3 shadow-lift ${
+          reduced ? '' : 'animate-toast-in'
+        }`}
+      >
+        <p className="font-display text-sm font-bold text-ink">Listing published</p>
+        <p className="mt-0.5 truncate text-[13px] text-ink-muted">{title}</p>
+        {/* the road the car drives along */}
+        <span
+          aria-hidden="true"
+          className="mt-2.5 block h-[3px] w-full rounded-full"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(to right, rgba(15,46,40,0.14) 0 8px, transparent 8px 18px)',
+          }}
+        />
+        {!reduced && (
+          <span
+            aria-hidden="true"
+            className="absolute bottom-[9px] left-0"
+            style={{ animation: 'toast-drive 3600ms cubic-bezier(0.33, 0, 0.4, 1) forwards' }}
+          >
+            <WizardCar />
+          </span>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -212,25 +278,32 @@ export function ListingWizard(): JSX.Element {
         <p className="label-micro">Step {step} of {STEP_TITLES.length}</p>
       </div>
 
-      <div aria-hidden="true" className="mt-3 flex items-center gap-1.5">
-        {STEP_TITLES.map((title, index) => {
-          const position = index + 1
-          const done = position < step
-          const current = position === step
-          return (
-            <span
-              key={title}
-              className="h-1.5 flex-1 overflow-hidden rounded-full bg-line"
-            >
-              <span
-                className={`block h-full rounded-full ${done ? 'bg-navy' : 'bg-brand'} ${
-                  reduced ? '' : 'transition-[width] duration-500 ease-out'
-                }`}
-                style={{ width: done || current ? '100%' : '0%' }}
-              />
-            </span>
-          )
-        })}
+      {/* E7: the progress indicator is a road that fills, with the car on it. */}
+      <div aria-hidden="true" className="relative mt-4 h-6">
+        <span
+          className="absolute inset-x-0 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-sand-200"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(to right, rgba(15,46,40,0.14) 0 10px, transparent 10px 22px)',
+          }}
+        />
+        <span
+          className="absolute left-0 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-emerald"
+          style={{
+            width: `${((step - 1) / (STEP_TITLES.length - 1)) * 100}%`,
+            transition: reduced ? 'none' : 'width 520ms cubic-bezier(0.22, 1, 0.36, 1)',
+          }}
+        />
+        <span
+          className="absolute top-1/2 -translate-y-1/2"
+          style={{
+            left: `${((step - 1) / (STEP_TITLES.length - 1)) * 100}%`,
+            transform: 'translate(-50%, -50%)',
+            transition: reduced ? 'none' : 'left 520ms cubic-bezier(0.22, 1, 0.36, 1)',
+          }}
+        >
+          <WizardCar />
+        </span>
       </div>
 
       <h3 className="mt-3 font-display text-[17px] font-bold text-ink">
@@ -239,7 +312,8 @@ export function ListingWizard(): JSX.Element {
 
       {published ? (
         <div className={`mt-5 ${reduced ? '' : 'animate-fade-slide'}`}>
-          <span className="grid h-11 w-11 place-items-center rounded-full bg-mint/10 text-mint">
+          <PublishToast title={listingTitle(published)} />
+          <span className="grid h-11 w-11 place-items-center rounded-full bg-coral-tint text-coral-text">
             <IconCheck className="h-6 w-6" />
           </span>
           <p className="mt-3 font-display text-xl font-extrabold text-ink sm:text-2xl">
@@ -254,7 +328,7 @@ export function ListingWizard(): JSX.Element {
             <Link to="/" className="btn-primary">
               See it in Browse
             </Link>
-            <Link to="/account" className="btn-navy">
+            <Link to="/account" className="btn-ink">
               Manage in My cars
             </Link>
             <button type="button" className="btn-ghost" onClick={listAnother}>
@@ -499,7 +573,7 @@ export function ListingWizard(): JSX.Element {
                 <div
                   data-testid="wizard-price-nudge"
                   id="wizard-price-nudge"
-                  className="mt-3 rounded-xl border border-line bg-surface px-4 py-3"
+                  className="mt-3 rounded-xl border border-line bg-sand px-4 py-3"
                 >
                   <p className="text-sm leading-relaxed text-ink-muted">
                     {classAverage > 0
@@ -579,14 +653,14 @@ export function ListingWizard(): JSX.Element {
               Continue
             </button>
           ) : (
-            <button
+            <MagneticButton
               type="button"
               data-testid="wizard-publish"
               className="btn-primary"
               onClick={handlePublish}
             >
               Publish listing
-            </button>
+            </MagneticButton>
           )}
 
           <p className="label-micro ml-auto hidden sm:block">Nothing here is booked</p>
