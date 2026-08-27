@@ -253,6 +253,39 @@ export default {
           '65%': { opacity: '1', transform: 'translateY(4px) scale(1.01)' },
           '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
+        // The trip planner: the car settles onto the pick-up day, the flag
+        // plants on the drop-off day, and the road draws itself between them.
+        'car-settle': {
+          '0%': { opacity: '0', transform: 'translateY(-14px) scale(0.55)' },
+          '62%': { opacity: '1', transform: 'translateY(2px) scale(1.06)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        'flag-plant': {
+          '0%': { opacity: '0', transform: 'scale(0.4) rotate(-14deg)' },
+          '70%': { opacity: '1', transform: 'scale(1.12) rotate(4deg)' },
+          '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' },
+        },
+        // pathLength is normalized to 1, so the wipe is length independent.
+        'road-draw': {
+          '0%': { strokeDashoffset: '1' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        'road-flow': {
+          '0%': { strokeDashoffset: '0' },
+          '100%': { strokeDashoffset: '-0.036' },
+        },
+        'month-in-right': {
+          '0%': { opacity: '0', transform: 'translateX(22px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'month-in-left': {
+          '0%': { opacity: '0', transform: 'translateX(-22px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'popover-in': {
+          '0%': { opacity: '0', transform: 'translateY(-8px) scale(0.985)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
       },
       animation: {
         shimmer: 'shimmer 1.6s linear infinite',
@@ -283,6 +316,13 @@ export default {
         sway: 'sway 4s ease-in-out infinite',
         'float-idle': 'float-idle 5.5s ease-in-out infinite',
         'drop-in': 'drop-in 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'car-settle': 'car-settle 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'flag-plant': 'flag-plant 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'road-draw': 'road-draw 520ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'road-flow': 'road-flow 1.1s linear infinite',
+        'month-in-right': 'month-in-right 260ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'month-in-left': 'month-in-left 260ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'popover-in': 'popover-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both',
       },
     },
   },

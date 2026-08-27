@@ -1,7 +1,8 @@
 import { useReducedMotion } from '../lib/motion'
-import { addDays, computeQuote, formatUSD, parseISODate, todayISO } from '../lib/pricing'
+import { computeQuote, formatUSD } from '../lib/pricing'
 import { siteConfig } from '../site.config'
 import type { Listing } from '../types'
+import { DateRangeField } from './DateRangeField'
 import { Odometer } from './Odometer'
 
 export interface CalculatorProps {
@@ -10,12 +11,6 @@ export interface CalculatorProps {
   endDate: string
   onDatesChange: (start: string, end: string) => void
 }
-
-/** ISO dates sort lexicographically, so a string compare is a date compare. */
-function isValid(value: string): boolean {
-  return parseISODate(value) !== null
-}
-
 
 /** The one coral mark on the page: a drawn check with a slightly loose tail. */
 function CoralTick(): JSX.Element {
@@ -43,22 +38,6 @@ export function Calculator({
   const dayWord = quote.days === 1 ? 'day' : 'days'
   const equation = ` × ${quote.days} ${dayWord} = `
 
-  function handleStart(next: string) {
-    if (!isValid(next)) return
-    // A drop-off that is not after the pick-up gets pushed out a day.
-    const nextEnd = isValid(endDate) && endDate > next ? endDate : addDays(next, 1)
-    onDatesChange(next, nextEnd)
-  }
-
-  function handleEnd(next: string) {
-    if (!isValid(next)) return
-    const nextEnd = next > startDate ? next : addDays(startDate, 1)
-    onDatesChange(startDate, nextEnd)
-  }
-
-  const pickupId = `pickup-${listing.id}`
-  const dropoffId = `dropoff-${listing.id}`
-
   return (
     <div className="card-flat overflow-hidden">
       <div className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-4 sm:px-5">
@@ -75,33 +54,14 @@ export function Calculator({
         </span>
       </div>
 
-      <div className="grid gap-3 border-b border-line px-4 py-4 sm:grid-cols-2 sm:px-5">
-        <div>
-          <label className="label-micro mb-1.5 block" htmlFor={pickupId}>
-            Pick up
-          </label>
-          <input
-            id={pickupId}
-            type="date"
-            className="field"
-            value={startDate}
-            min={todayISO()}
-            onChange={(event) => handleStart(event.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label-micro mb-1.5 block" htmlFor={dropoffId}>
-            Drop off
-          </label>
-          <input
-            id={dropoffId}
-            type="date"
-            className="field"
-            value={endDate}
-            min={isValid(startDate) ? addDays(startDate, 1) : undefined}
-            onChange={(event) => handleEnd(event.target.value)}
-          />
-        </div>
+      <div className="border-b border-line px-4 py-4 sm:px-5">
+        <DateRangeField
+          id={`trip-dates-${listing.id}`}
+          label="Trip dates"
+          startDate={startDate}
+          endDate={endDate}
+          onChange={onDatesChange}
+        />
       </div>
 
       <div

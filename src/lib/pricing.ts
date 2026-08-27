@@ -1,6 +1,6 @@
 import type { Listing, VehicleClass } from '../types'
 
-/** Local calendar date as YYYY-MM-DD, safe for <input type="date">. */
+/** Local calendar date as YYYY-MM-DD, which is how every date moves around. */
 export function toISODate(date: Date): string {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')

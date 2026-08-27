@@ -66,24 +66,6 @@
     color: inherit;
   }
 
-  /* iOS and Safari render date inputs oddly without this normalization. */
-  input[type='date'] {
-    -webkit-appearance: none;
-    appearance: none;
-    min-height: 48px;
-    background-color: #ffffff;
-  }
-
-  input[type='date']::-webkit-date-and-time-value {
-    text-align: left;
-    margin: 0;
-  }
-
-  input[type='date']::-webkit-calendar-picker-indicator {
-    opacity: 0.6;
-    cursor: pointer;
-  }
-
   img,
   svg {
     max-width: 100%;

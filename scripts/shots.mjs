@@ -128,6 +128,36 @@ async function main() {
     .innerText()
     .catch(() => null)
 
+  // A5: the planner popover with a road range drawn across the month gap.
+  {
+    const today = await dp.evaluate(() => {
+      const now = new Date()
+      const pad = (n) => String(n).padStart(2, '0')
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+    })
+    await openPlanner(dp)
+    await dp.waitForTimeout(400)
+    await shot(dp, 'still-1440-planner-popover')
+    findings.checks.plannerMonthsShown = await dp
+      .locator('[data-testid="date-popover"] [role="grid"]')
+      .count()
+    // Hold the popover open on a settled range by hovering rather than picking,
+    // because picking the drop-off is what closes it.
+    await pickDay(dp, shiftISO(today, 20))
+    await dp.locator(`[data-day="${shiftISO(today, 40)}"]`).first().hover()
+    await dp.waitForTimeout(700)
+    await shot(dp, 'still-1440-planner-road-range')
+    findings.checks.plannerDesktopRoad = await dp
+      .locator('[data-testid="road-range-path"]')
+      .count()
+    findings.checks.plannerDesktopChip = await dp
+      .locator('[data-testid="road-day-count"]')
+      .innerText()
+      .catch(() => null)
+    await dp.keyboard.press('Escape')
+    await dp.waitForTimeout(300)
+  }
+
   await dp.goto(BASE + '/how-it-works', { waitUntil: 'domcontentloaded' })
   await settle(dp)
   await shot(dp, 'still-1440-how-it-works')
@@ -251,15 +281,49 @@ async function main() {
   await settle(pp)
   await showTotal(pp)
   await shot(pp, 'still-390-zero-fee-moment')
-  const dropOff = pp.locator('input[type="date"]').nth(1)
-  const start = await pp.locator('input[type="date"]').first().inputValue()
-  await dropOff.fill(shiftISO(start, 5))
-  await dropOff.dispatchEvent('change')
+  // A5: the trip planner sheet on a phone, then the range it produces.
+  await openPlanner(pp)
+  await pp.waitForTimeout(500)
+  await shot(pp, 'still-390-planner-sheet')
+  findings.checks.plannerPhoneShell = await pp
+    .locator('[role="dialog"] [data-testid="road-day-count"]')
+    .count()
+
+  const today = await pp.evaluate(() => {
+    const now = new Date()
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  })
+  await pickDay(pp, today)
+  await pickDay(pp, shiftISO(today, 5))
+  await pp.waitForTimeout(700)
+  await shot(pp, 'still-390-planner-road-range')
+  findings.checks.plannerRoadPath = await pp.locator('[data-testid="road-range-path"]').count()
+  findings.checks.plannerDayChip = await pp
+    .locator('[data-testid="road-day-count"]')
+    .innerText()
+    .catch(() => null)
+  // Smallest day tile in the sheet, which has to clear the 44px touch target.
+  findings.checks.plannerMinTargetPx = await pp.evaluate(() => {
+    const cells = Array.from(document.querySelectorAll('[role="dialog"] [data-day]'))
+    const sizes = cells.map((cell) => {
+      const rect = cell.getBoundingClientRect()
+      return Math.min(rect.width, rect.height)
+    })
+    return sizes.length === 0 ? null : Math.round(Math.min(...sizes) * 10) / 10
+  })
+
+  await pp.getByRole('button', { name: /confirm dates/i }).click()
   await pp.waitForTimeout(900)
   await showTotal(pp)
   await shot(pp, 'still-390-total-rolled')
   findings.checks.rolledTotal = await pp
     .locator('[data-testid="odometer-value"]')
+    .innerText()
+    .catch(() => null)
+  findings.checks.plannerFieldText = await pp
+    .locator('[data-testid$="-trigger"]')
+    .first()
     .innerText()
     .catch(() => null)
 
@@ -282,6 +346,36 @@ async function main() {
     .locator('[data-testid="odometer-value"]')
     .innerText()
     .catch(() => null)
+
+  // A5 under reduced motion: the planner still selects and still tints, with
+  // nothing moving.
+  {
+    const today = await rmp.evaluate(() => {
+      const now = new Date()
+      const pad = (n) => String(n).padStart(2, '0')
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+    })
+    await openPlanner(rmp)
+    await pickDay(rmp, shiftISO(today, 2))
+    await rmp.locator(`[data-day="${shiftISO(today, 9)}"]`).first().hover()
+    await rmp.waitForTimeout(500)
+    await shot(rmp, 'still-1440-planner-reduced-motion')
+    findings.checks.plannerReducedMotionAnimations = await rmp.evaluate(() => {
+      const popover = document.querySelector('[data-testid="date-popover"]')
+      if (!popover) return null
+      let running = 0
+      for (const node of popover.querySelectorAll('*')) {
+        for (const animation of node.getAnimations?.() ?? []) {
+          if (animation.playState === 'running') running += 1
+        }
+      }
+      return running
+    })
+    findings.checks.plannerReducedMotionRoad = await rmp
+      .locator('[data-testid="road-range-path"]')
+      .count()
+    await rmp.keyboard.press('Escape')
+  }
   await rm.close()
 
   // ---------- first run with storage cleared ----------
@@ -325,6 +419,38 @@ async function clipOf(locator, pad = 0) {
     width: box.width + pad * 2,
     height: box.height + pad * 2,
   }
+}
+
+/** Opens the trip planner from whichever date field the page is showing. */
+async function openPlanner(page) {
+  const trigger = page.locator('[data-testid$="-trigger"]').first()
+  await trigger.scrollIntoViewIfNeeded()
+  await trigger.click()
+  await page
+    .locator('[data-testid="date-popover"], [role="dialog"]')
+    .first()
+    .waitFor({ state: 'visible', timeout: 4000 })
+}
+
+/**
+ * Clicks a day in the open planner, paging forward when the target month is not
+ * on screen. The phone sheet shows one month, so a range that runs past the end
+ * of this one needs the arrow.
+ */
+async function pickDay(page, iso) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const cell = page.locator(`[data-day="${iso}"]`).first()
+    if (await cell.count()) {
+      await cell.click()
+      await page.waitForTimeout(260)
+      return true
+    }
+    const next = page.getByRole('button', { name: /next month/i }).first()
+    if (!(await next.count())) return false
+    await next.click()
+    await page.waitForTimeout(320)
+  }
+  return false
 }
 
 function shiftISO(value, days) {
