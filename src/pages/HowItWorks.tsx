@@ -6,6 +6,7 @@ import { MileMarker } from '../components/RoadLine'
 import { Reveal } from '../components/Reveal'
 import { SunBand } from '../components/CoastalHero'
 import { WaveDivider } from '../components/WaveDivider'
+import { useCountUp } from '../lib/countUp'
 import { siteConfig } from '../site.config'
 
 interface Step {
@@ -75,6 +76,24 @@ function StepColumn({ heading, lede, steps, tone }: StepColumnProps): JSX.Elemen
         ))}
       </ol>
     </section>
+  )
+}
+
+/**
+ * Rolls the numeric part of a stat up from zero while keeping any prefix such
+ * as a dollar sign exactly as written.
+ */
+function CountingFigure({ value }: { value: string }): JSX.Element {
+  const match = /^([^0-9]*)(\d+)(.*)$/.exec(value)
+  const target = match ? Number(match[2]) : 0
+  const shown = useCountUp(target, 900)
+  if (!match) return <>{value}</>
+  return (
+    <>
+      {match[1]}
+      {shown}
+      {match[3]}
+    </>
   )
 }
 
@@ -149,9 +168,11 @@ export function HowItWorks(): JSX.Element {
           <dl className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {facts.map((fact, index) => (
               <Reveal key={fact.label} delay={index * 70}>
-                <div className="card-flat h-full px-5 py-5">
+                <div className="card card-lift h-full px-5 py-5">
                   <dt className="label-micro">{fact.label}</dt>
-                  <dd className="num mt-2 text-3xl font-extrabold text-ink">{fact.value}</dd>
+                  <dd className="num mt-2 text-3xl font-extrabold text-ink">
+                    <CountingFigure value={fact.value} />
+                  </dd>
                 </div>
               </Reveal>
             ))}

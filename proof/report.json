@@ -7,11 +7,11 @@
         "clientWidth": 360,
         "offenders": [
           "div.absolute -inset-16 rounded-full bg-gold/40 blur-2xl animate-",
+          "div.absolute left-0 top-0 w-16 origin-bottom will-change-transfo",
+          "svg.[object SVGAnimatedString]",
+          "ellipse.[object SVGAnimatedString]",
           "path.[object SVGAnimatedString]",
-          "path.[object SVGAnimatedString]",
-          "button.chip shrink-0 ",
-          "button.chip shrink-0 ",
-          "div.pointer-events-none absolute inset-x-[-18%] bottom-[6%] h-[7"
+          "path.[object SVGAnimatedString]"
         ]
       },
       "/how-it-works": {
@@ -50,8 +50,12 @@
         "scrollWidth": 1440,
         "clientWidth": 1440,
         "offenders": [
+          "div.absolute left-0 top-0 w-16 origin-bottom will-change-transfo",
+          "svg.[object SVGAnimatedString]",
+          "ellipse.[object SVGAnimatedString]",
           "path.[object SVGAnimatedString]",
-          "path.[object SVGAnimatedString]"
+          "path.[object SVGAnimatedString]",
+          "rect.[object SVGAnimatedString]"
         ]
       },
       "/how-it-works": {

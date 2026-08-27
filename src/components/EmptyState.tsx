@@ -35,7 +35,8 @@ function BeachScene(): JSX.Element {
 
       {/* umbrella pole */}
       <path d="M40 34v44" stroke="#0F2E28" strokeWidth="3" strokeLinecap="round" />
-      {/* umbrella canopy, coral and cream gores */}
+      {/* umbrella canopy, coral and cream gores - sways from the top of the pole */}
+      <g className="animate-sway" style={{ transformOrigin: '40px 36px' }}>
       <path d="M14 36c0-14 12-24 26-24s26 10 26 24z" fill="#FF6B4A" />
       <path d="M27 36c0-14 5.8-24 13-24s13 10 13 24z" fill="#FFF6E4" />
       <path
@@ -45,6 +46,8 @@ function BeachScene(): JSX.Element {
         strokeLinejoin="round"
         fill="none"
       />
+
+      </g>
 
       {/* small car parked to the right */}
       <g>

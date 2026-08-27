@@ -305,6 +305,16 @@ export function VehicleSilhouette({
         />
       </div>
 
+      {/* A glint of sun sweeps the panel when the card is hovered. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 opacity-0 group-hover:animate-glint-sweep"
+        style={{
+          background:
+            'linear-gradient(90deg, transparent, rgba(255,255,255,0.55) 50%, transparent)',
+        }}
+      />
+
       {/* A soft horizon so the vehicle sits on something */}
       <div
         aria-hidden="true"
@@ -327,7 +337,9 @@ export function VehicleSilhouette({
               <stop offset="100%" stopColor="#E8DCC6" />
             </linearGradient>
           </defs>
-          <Shape fill={`url(#${gradientId})`} />
+          <g className="transition-transform duration-500 ease-coast group-hover:translate-x-[10px]">
+            <Shape fill={`url(#${gradientId})`} />
+          </g>
         </svg>
       </div>
     </div>
