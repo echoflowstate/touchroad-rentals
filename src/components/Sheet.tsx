@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useReducedMotion } from '../lib/motion'
 import { IconClose } from './Icons'
 
@@ -35,19 +36,28 @@ export function Sheet({ open, onClose, title, children, footer }: SheetProps): J
   const reduced = useReducedMotion()
   const titleId = useId()
 
+  // The element that opened the sheet has to be captured before React commits
+  // autofocus, otherwise an autofocused field inside the panel records itself
+  // as the return target and focus lands on nothing when the sheet closes.
+  useLayoutEffect(() => {
+    if (!open) return
+    returnFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
+  }, [open])
+
   // Move focus in on open, hand it back on close. An autofocused field inside
   // the panel keeps focus - the panel only claims it when nothing else has.
   useEffect(() => {
     if (!open) return
-    returnFocusRef.current =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null
     const panel = panelRef.current
     if (panel && !panel.contains(document.activeElement)) panel.focus()
 
     return () => {
       const previous = returnFocusRef.current
       returnFocusRef.current = null
-      if (previous && document.contains(previous)) previous.focus()
+      if (previous && document.contains(previous) && document.body.contains(previous)) {
+        previous.focus()
+      }
     }
   }, [open])
 
@@ -108,7 +118,7 @@ export function Sheet({ open, onClose, title, children, footer }: SheetProps): J
   // transformed into place, so it fades instead.
   const panelMotion = reduced ? '' : 'animate-sheet-up md:animate-fade-in'
 
-  return (
+  return createPortal(
     <>
       <div
         aria-hidden="true"
@@ -147,7 +157,8 @@ export function Sheet({ open, onClose, title, children, footer }: SheetProps): J
           <div className="shrink-0 border-t border-line px-5 py-4">{footer}</div>
         ) : null}
       </div>
-    </>
+    </>,
+    document.body,
   )
 }
 

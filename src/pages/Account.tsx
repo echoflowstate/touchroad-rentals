@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useId, useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { EmptyState } from '../components/EmptyState'
 import { IconCheck, IconPencil, IconPin, IconTrash } from '../components/Icons'
@@ -120,7 +120,12 @@ function MyCarRow({
 function MyCars(): JSX.Element {
   const { userListings, updateListing, removeListing } = useAppData()
   const [edit, setEdit] = useState<EditState | null>(null)
-  const [editError, setEditError] = useState('')
+  const [editError, setEditError] = useState<{ field: 'price' | 'blurb'; message: string } | null>(
+    null,
+  )
+  const editErrorId = useId()
+  const editPriceRef = useRef<HTMLInputElement | null>(null)
+  const editBlurbRef = useRef<HTMLInputElement | null>(null)
   const [removeId, setRemoveId] = useState<string | null>(null)
   const priceId = useId()
   const cityId = useId()
@@ -130,7 +135,7 @@ function MyCars(): JSX.Element {
   const removeLabel = removeTarget ? listingTitle(removeTarget) : 'this listing'
 
   function startEdit(listing: Listing) {
-    setEditError('')
+    setEditError(null)
     setEdit({
       id: listing.id,
       price: String(listing.pricePerDay),
@@ -143,16 +148,18 @@ function MyCars(): JSX.Element {
     if (!edit) return
     const price = Math.round(Number(edit.price))
     if (!Number.isFinite(price) || price < 1) {
-      setEditError('Enter a daily price of at least $1.')
+      setEditError({ field: 'price', message: 'Enter a daily price of at least $1.' })
+      editPriceRef.current?.focus()
       return
     }
     const blurb = edit.blurb.trim()
     if (!blurb) {
-      setEditError('Add one short line about the car.')
+      setEditError({ field: 'blurb', message: 'Add one short line about the car.' })
+      editBlurbRef.current?.focus()
       return
     }
     updateListing(edit.id, { pricePerDay: price, city: edit.city, blurb })
-    setEditError('')
+    setEditError(null)
     setEdit(null)
   }
 
@@ -221,8 +228,11 @@ function MyCars(): JSX.Element {
                 </span>
                 <input
                   id={priceId}
+                  ref={editPriceRef}
                   className="field num pl-7"
                   type="number"
+                  aria-invalid={editError?.field === 'price' ? true : undefined}
+                  aria-describedby={editError?.field === 'price' ? editErrorId : undefined}
                   inputMode="numeric"
                   min={1}
                   max={999}
@@ -230,7 +240,7 @@ function MyCars(): JSX.Element {
                   value={edit.price}
                   onChange={(event) => {
                     setEdit({ ...edit, price: event.target.value })
-                    if (editError) setEditError('')
+                    if (editError) setEditError(null)
                   }}
                 />
               </div>
@@ -264,21 +274,24 @@ function MyCars(): JSX.Element {
               </label>
               <input
                 id={blurbId}
+                ref={editBlurbRef}
                 className="field mt-2"
                 type="text"
                 maxLength={90}
+                aria-invalid={editError?.field === 'blurb' ? true : undefined}
+                aria-describedby={editError?.field === 'blurb' ? editErrorId : undefined}
                 value={edit.blurb}
                 onChange={(event) => {
                   setEdit({ ...edit, blurb: event.target.value })
-                  if (editError) setEditError('')
+                  if (editError) setEditError(null)
                 }}
               />
               <p className="label-micro mt-2">{edit.blurb.length} of 90</p>
             </div>
 
             {editError ? (
-              <p role="alert" className="text-sm font-medium text-red-600">
-                {editError}
+              <p id={editErrorId} role="alert" className="text-sm font-medium text-red-600">
+                {editError.message}
               </p>
             ) : null}
           </form>
@@ -389,13 +402,46 @@ function Trips(): JSX.Element {
   )
 }
 
-export function Account(): JSX.Element {
+export const TABS: { key: TabKey; label: string }[] = [
+  { key: 'cars', label: 'My cars' },
+  { key: 'trips', label: 'Trips' },
+]
+
+function Account(): JSX.Element {
   const { isSignedIn, session, signOut, openSignIn } = useAppData()
   const [tab, setTab] = useState<TabKey>('cars')
   const carsTabId = useId()
   const carsPanelId = useId()
   const tripsTabId = useId()
   const tripsPanelId = useId()
+  const carsTabRef = useRef<HTMLButtonElement | null>(null)
+  const tripsTabRef = useRef<HTMLButtonElement | null>(null)
+
+  // The tabs pattern promises arrow-key movement, so implement it rather than
+  // leaving the roles writing a check the keyboard does not honor.
+  function focusTab(next: TabKey): void {
+    setTab(next)
+    const target = next === 'cars' ? carsTabRef.current : tripsTabRef.current
+    target?.focus()
+  }
+
+  function onTabKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
+    const order: TabKey[] = ['cars', 'trips']
+    const index = order.indexOf(tab)
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      event.preventDefault()
+      focusTab(order[(index + 1) % order.length])
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      focusTab(order[(index - 1 + order.length) % order.length])
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      focusTab(order[0])
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      focusTab(order[order.length - 1])
+    }
+  }
 
   if (!isSignedIn || !session) {
     return <SignedOut onSignIn={() => openSignIn()} />
@@ -428,40 +474,48 @@ export function Account(): JSX.Element {
         </p>
       </header>
 
-      <div role="tablist" aria-label="Account sections" className="mt-5 flex gap-2">
-        <button
-          type="button"
-          role="tab"
-          id={carsTabId}
-          aria-selected={tab === 'cars'}
-          aria-controls={carsPanelId}
-          className={tab === 'cars' ? 'chip chip-active' : 'chip'}
-          onClick={() => setTab('cars')}
-        >
-          My cars
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id={tripsTabId}
-          aria-selected={tab === 'trips'}
-          aria-controls={tripsPanelId}
-          className={tab === 'trips' ? 'chip chip-active' : 'chip'}
-          onClick={() => setTab('trips')}
-        >
-          Trips
-        </button>
+      <div
+        role="tablist"
+        aria-label="Account sections"
+        className="mt-5 flex gap-2"
+        onKeyDown={onTabKeyDown}
+      >
+        {TABS.map((entry) => (
+          <button
+            key={entry.key}
+            type="button"
+            role="tab"
+            id={entry.key === 'cars' ? carsTabId : tripsTabId}
+            ref={entry.key === 'cars' ? carsTabRef : tripsTabRef}
+            aria-selected={tab === entry.key}
+            aria-controls={entry.key === 'cars' ? carsPanelId : tripsPanelId}
+            tabIndex={tab === entry.key ? 0 : -1}
+            className={tab === entry.key ? 'chip chip-active' : 'chip'}
+            onClick={() => setTab(entry.key)}
+          >
+            {entry.label}
+          </button>
+        ))}
       </div>
 
-      {tab === 'cars' ? (
-        <section id={carsPanelId} role="tabpanel" aria-labelledby={carsTabId} className="mt-5">
-          <MyCars />
-        </section>
-      ) : (
-        <section id={tripsPanelId} role="tabpanel" aria-labelledby={tripsTabId} className="mt-5">
-          <Trips />
-        </section>
-      )}
+      <section
+        id={carsPanelId}
+        role="tabpanel"
+        aria-labelledby={carsTabId}
+        hidden={tab !== 'cars'}
+        className="mt-5"
+      >
+        <MyCars />
+      </section>
+      <section
+        id={tripsPanelId}
+        role="tabpanel"
+        aria-labelledby={tripsTabId}
+        hidden={tab !== 'trips'}
+        className="mt-5"
+      >
+        <Trips />
+      </section>
     </div>
   )
 }

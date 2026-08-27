@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useAppData } from '../state/AppState'
 import { Sheet } from './Sheet'
 
@@ -11,6 +11,17 @@ export function AuthSheet(): JSX.Element | null {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const nameId = useId()
+
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  // Claimed here rather than with the autoFocus attribute: autoFocus fires during
+  // commit, which is too early for Sheet to capture the control that opened it,
+  // and the sheet then has nothing to hand focus back to on close.
+  useEffect(() => {
+    if (!signInOpen) return
+    const frame = requestAnimationFrame(() => inputRef.current?.focus())
+    return () => cancelAnimationFrame(frame)
+  }, [signInOpen])
 
   useEffect(() => {
     if (!signInOpen) return
@@ -66,7 +77,7 @@ export function AuthSheet(): JSX.Element | null {
             placeholder="First name"
             autoComplete="given-name"
             maxLength={40}
-            autoFocus
+            ref={inputRef}
             value={name}
             onChange={(event) => {
               setName(event.target.value)

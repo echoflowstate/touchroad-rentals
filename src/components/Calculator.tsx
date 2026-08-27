@@ -104,14 +104,14 @@ export function Calculator({
       >
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-sm text-ink-muted">
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mint/10 text-mint">
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mint/10 text-mint-ink">
               <IconCheck className="h-4 w-4" />
             </span>
             Service fees
           </span>
-          <span className="num text-sm font-semibold text-mint">{formatUSD(0)}</span>
+          <span className="num text-sm font-semibold text-mint-ink">{formatUSD(0)}</span>
         </div>
-        <p className="mt-1.5 pl-8 text-[13px] font-medium text-mint">
+        <p className="mt-1.5 pl-8 text-[13px] font-medium text-mint-ink">
           No booking fees on {siteConfig.shortName}
         </p>
       </div>

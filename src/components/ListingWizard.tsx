@@ -314,6 +314,7 @@ export function ListingWizard(): JSX.Element {
                   aria-invalid={errors.make ? true : undefined}
                   aria-describedby={errors.make ? 'wizard-make-error' : undefined}
                   className={`field mt-1.5 ${errors.make ? 'border-red-500' : ''}`}
+                  maxLength={28}
                 />
                 <FieldError id="wizard-make-error" message={errors.make} />
               </div>
@@ -332,6 +333,7 @@ export function ListingWizard(): JSX.Element {
                   aria-invalid={errors.model ? true : undefined}
                   aria-describedby={errors.model ? 'wizard-model-error' : undefined}
                   className={`field mt-1.5 ${errors.model ? 'border-red-500' : ''}`}
+                  maxLength={32}
                 />
                 <FieldError id="wizard-model-error" message={errors.model} />
               </div>

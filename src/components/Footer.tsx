@@ -50,7 +50,7 @@ export function Footer() {
           </div>
 
           <nav aria-label="Footer">
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/40">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/60">
               Explore
             </p>
             <ul className="mt-4 space-y-1">
@@ -68,12 +68,12 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-navy-600 pt-6 text-[12px] leading-relaxed text-white/45 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-2 border-t border-navy-600 pt-6 text-[12px] leading-relaxed text-white/60 sm:flex-row sm:items-center sm:justify-between">
           <p>
             {siteConfig.brandName} - preview build. Sample listings for demonstration. No real
             bookings, no payments.
           </p>
-          <p className="font-mono text-[11px] tracking-wide text-white/35">{year}</p>
+          <p className="font-mono text-[11px] tracking-wide text-white/60">{year}</p>
         </div>
       </div>
     </footer>

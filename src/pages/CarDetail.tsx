@@ -129,8 +129,8 @@ export function CarDetail(): JSX.Element {
         Back to browse
       </Link>
 
-      <div className="mt-3 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-10">
-        <div>
+      <div className="mt-3 grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-10">
+        <div className="min-w-0">
           <VehicleSilhouette vehicleClass={listing.vehicleClass} variant="hero" />
 
           <div className="mt-5">
@@ -144,7 +144,7 @@ export function CarDetail(): JSX.Element {
               </span>
             )}
 
-            <h1 className="mt-2.5 font-display text-3xl font-extrabold leading-tight tracking-[-0.02em] text-ink sm:text-4xl">
+            <h1 className="mt-2.5 break-words font-display text-3xl font-extrabold leading-tight tracking-[-0.02em] text-ink sm:text-4xl">
               {title}
             </h1>
 
@@ -179,12 +179,12 @@ export function CarDetail(): JSX.Element {
               : `Listed by ${listing.hostName} - sample host`}
           </p>
 
-          <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-ink-muted">
+          <p className="mt-3 max-w-prose break-words text-[15px] leading-relaxed text-ink-muted">
             {listing.blurb}
           </p>
         </div>
 
-        <div className="lg:sticky lg:top-24">
+        <div className="min-w-0 lg:sticky lg:top-24">
           <Calculator
             listing={listing}
             startDate={dates.start}

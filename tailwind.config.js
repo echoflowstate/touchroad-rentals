@@ -31,10 +31,14 @@ export default {
         ink: {
           DEFAULT: '#0F1524',
           muted: '#5B6478',
-          faint: '#8B93A5',
+          faint: '#666E80',
         },
         line: '#E4E7EE',
-        mint: '#12B76A',
+        mint: {
+          DEFAULT: '#12B76A',
+          // Darker sibling for text: #12B76A is 2.62:1 on white, below AA.
+          ink: '#0A7C48',
+        },
       },
       fontFamily: {
         display: ['Archivo', ...systemStack],

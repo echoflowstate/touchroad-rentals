@@ -172,7 +172,9 @@ describe('publishing a car through the wizard', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('my-cars-item')).toBeNull()
       })
-      expect(screen.getByTestId('empty-state')).toBeInTheDocument()
+      // Both tab panels stay mounted so each tab's aria-controls resolves, so the
+      // assertion scopes to the one that is actually showing.
+      expect(within(screen.getByRole('tabpanel')).getByTestId('empty-state')).toBeInTheDocument()
       expect(
         storedListings().some((listing) => listing.id === listingId),
       ).toBe(false)

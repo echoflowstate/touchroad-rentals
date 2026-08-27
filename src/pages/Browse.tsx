@@ -171,6 +171,7 @@ export function Browse(): JSX.Element {
             <SkeletonGrid count={6} />
           ) : (
             <>
+              <h2 className="sr-only">Cars</h2>
               <div
                 data-testid="results-grid"
                 className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
