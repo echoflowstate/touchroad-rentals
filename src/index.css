@@ -1,0 +1,243 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --tab-bar-height: 64px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --tab-bar-total: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: theme(colors.surface);
+    color: theme(colors.ink.DEFAULT);
+    font-family: theme(fontFamily.sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: theme(colors.ink.DEFAULT);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme(colors.brand.DEFAULT);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: rgba(46, 107, 255, 0.22);
+    color: theme(colors.ink.DEFAULT);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* iOS and Safari render date inputs oddly without this normalization. */
+  input[type='date'] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 48px;
+    background-color: #ffffff;
+  }
+
+  input[type='date']::-webkit-date-and-time-value {
+    text-align: left;
+    margin: 0;
+  }
+
+  input[type='date']::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-white shadow-card transition-all duration-200;
+  }
+
+  .card-flat {
+    @apply rounded-2xl border border-line bg-white;
+  }
+
+  @media (hover: hover) {
+    .card:hover {
+      @apply -translate-y-0.5 shadow-card-hover;
+    }
+  }
+
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all duration-200;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .btn:active {
+    @apply scale-[0.98];
+  }
+
+  .btn:disabled {
+    @apply cursor-not-allowed opacity-45;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand text-white hover:bg-brand-600;
+  }
+
+  .btn-navy {
+    @apply btn bg-navy text-white hover:bg-navy-800;
+  }
+
+  .btn-ghost {
+    @apply btn border border-line bg-transparent text-ink hover:bg-white;
+  }
+
+  .btn-sm {
+    @apply min-h-[44px] gap-1.5 px-3.5 text-[13px];
+  }
+
+  .chip {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 text-sm font-medium text-ink transition-all duration-200;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .chip:active {
+    @apply scale-95;
+  }
+
+  .chip-active {
+    @apply border-brand bg-brand text-white hover:bg-brand-600;
+  }
+
+  .field {
+    @apply h-[48px] w-full rounded-xl border border-line bg-white px-3 text-sm text-ink transition-all duration-200;
+    @apply placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .field:focus {
+    @apply border-brand-300;
+  }
+
+  select.field {
+    @apply appearance-none pr-9;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%235B6478' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+  }
+
+  textarea.field {
+    @apply h-auto min-h-[96px] py-3 leading-relaxed;
+  }
+
+  .label-micro {
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide;
+  }
+
+  .badge-sample {
+    @apply badge bg-navy/[0.08] text-navy;
+  }
+
+  .badge-yours {
+    @apply badge bg-brand/10 text-brand-600;
+  }
+
+  .skeleton {
+    @apply animate-shimmer rounded-xl;
+    background-image: linear-gradient(90deg, #eef0f4 0%, #f9fafb 45%, #eef0f4 90%);
+    background-size: 200% 100%;
+  }
+
+  .sheet-backdrop {
+    @apply fixed inset-0 z-50 bg-navy/60 backdrop-blur-sm;
+  }
+
+  .sheet-panel {
+    @apply fixed inset-x-0 bottom-0 z-50 max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white shadow-sheet;
+    @apply md:inset-x-auto md:left-1/2 md:bottom-auto md:top-1/2 md:w-full md:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-3xl;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+  }
+
+  .focusable {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .hero-glow {
+    @apply pointer-events-none absolute inset-0;
+    background: radial-gradient(
+      closest-side,
+      rgba(46, 107, 255, 0.42),
+      rgba(46, 107, 255, 0.14) 58%,
+      rgba(46, 107, 255, 0) 100%
+    );
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .card:hover {
+    --tw-translate-y: 0 !important;
+    transform: none !important;
+  }
+
+  .chip:active,
+  .btn:active {
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+    transform: none !important;
+  }
+
+  .skeleton {
+    animation: none;
+    background: #eef0f4;
+  }
+}
