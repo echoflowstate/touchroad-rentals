@@ -212,7 +212,7 @@ export function CarDetail(): JSX.Element {
                 <li key={point} className="flex items-start gap-2 text-sm text-ink-muted">
                   <span
                     aria-hidden="true"
-                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
+                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-emerald"
                   />
                   {point}
                 </li>

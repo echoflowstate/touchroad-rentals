@@ -17,11 +17,11 @@ const WHEEL_R = 22
 const CART_R = 15
 const CART_CY = GROUND - CART_R
 
-const BODY_TOP = '#C9D6F5'
-const GLASS = '#5C8CFF'
-const TIRE = '#0a0f1c'
-const HUB = '#22314f'
-const SEAM = '#1F53D8'
+const BODY_TOP = '#FFFBF2'
+const GLASS = '#7FD4C8'
+const TIRE = '#0F2E28'
+const HUB = '#3F5C54'
+const SEAM = '#0B7458'
 
 interface ShapeProps {
   fill: string
@@ -198,6 +198,66 @@ function slugFor(vehicleClass: VehicleClass): string {
   return vehicleClass.toLowerCase().replace(/\s+/g, '-')
 }
 
+
+/**
+ * E3: each class gets its own sky, so a mixed grid reads as a set of moments on
+ * the same coast rather than one repeated tile. Times of day were chosen to
+ * suit the vehicle: carts at bright noon, SUVs at dusk, sedans at dawn.
+ */
+interface Sky {
+  stops: [string, string, string]
+  sun: string
+  sunAt: [number, number]
+  glow: string
+}
+
+const SKIES: Record<VehicleClass, Sky> = {
+  Car: {
+    // dawn
+    stops: ['#FFE9D2', '#FFD9C4', '#F7F2E9'],
+    sun: '#FFC65C',
+    sunAt: [78, 26],
+    glow: 'rgba(255,198,92,0.42)',
+  },
+  SUV: {
+    // dusk
+    stops: ['#FFD1A8', '#F7A98A', '#CBD9D2'],
+    sun: '#FF9C5C',
+    sunAt: [24, 30],
+    glow: 'rgba(255,120,80,0.38)',
+  },
+  Truck: {
+    // late gold
+    stops: ['#FFEFC9', '#FFDD9E', '#EFE7D8'],
+    sun: '#F2A73B',
+    sunAt: [80, 30],
+    glow: 'rgba(242,167,59,0.36)',
+  },
+  Van: {
+    // soft morning
+    stops: ['#E4F3FA', '#CDEAF0', '#EFE7D8'],
+    sun: '#FFD98A',
+    sunAt: [70, 24],
+    glow: 'rgba(255,217,138,0.40)',
+  },
+  Convertible: {
+    // midday
+    stops: ['#CFEFF3', '#A9E2E0', '#F2EFE4'],
+    sun: '#FFE08A',
+    sunAt: [50, 20],
+    glow: 'rgba(255,224,138,0.48)',
+  },
+  'Golf cart': {
+    // bright noon
+    stops: ['#FFF7DA', '#E9F5D9', '#F7F2E9'],
+    sun: '#FFD75C',
+    sunAt: [50, 18],
+    glow: 'rgba(255,215,92,0.52)',
+  },
+}
+
+const DEFAULT_SKY = SKIES.Car
+
 export function VehicleSilhouette({
   vehicleClass,
   variant = 'card',
@@ -207,6 +267,7 @@ export function VehicleSilhouette({
   const gradientId = `tr-grad-${slugFor(vehicleClass)}`
   // An unrecognized class draws a car rather than throwing the page away.
   const Shape = SHAPES[vehicleClass] ?? CarShape
+  const sky = SKIES[vehicleClass] ?? DEFAULT_SKY
   const wrapperClass = [
     'relative overflow-hidden rounded-2xl',
     isHero ? 'aspect-[16/9]' : 'aspect-[16/10]',
@@ -220,20 +281,40 @@ export function VehicleSilhouette({
       role="img"
       aria-label={`${vehicleClass} silhouette`}
       className={wrapperClass}
-      style={{ background: 'linear-gradient(158deg, #0a0f1c 0%, #111a2e 54%, #182440 100%)' }}
+      style={{
+        background: `linear-gradient(172deg, ${sky.stops[0]} 0%, ${sky.stops[1]} 52%, ${sky.stops[2]} 100%)`,
+      }}
     >
+      {/* Sun disc and its glow, placed per class */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[-28%] h-[96%] w-[78%] -translate-x-1/2 rounded-full"
+        className="pointer-events-none absolute"
         style={{
-          background: 'radial-gradient(closest-side, rgba(46,107,255,0.30), rgba(46,107,255,0))',
+          left: `${sky.sunAt[0]}%`,
+          top: `${sky.sunAt[1]}%`,
+          transform: 'translate(-50%, -50%)',
         }}
-      />
+      >
+        <div
+          className="absolute -inset-8 rounded-full blur-xl"
+          style={{ background: `radial-gradient(closest-side, ${sky.glow}, transparent)` }}
+        />
+        <div
+          className="relative rounded-full"
+          style={{ width: isHero ? 40 : 26, height: isHero ? 40 : 26, background: sky.sun }}
+        />
+      </div>
+
+      {/* A soft horizon so the vehicle sits on something */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-[-18%] bottom-[7%] h-[72%] rounded-[100%] border-t border-brand/20"
+        className="pointer-events-none absolute inset-x-[-18%] bottom-[6%] h-[70%] rounded-[100%]"
+        style={{ borderTop: '1px solid rgba(15,46,40,0.10)' }}
       />
-      <div className={`relative flex h-full w-full items-center justify-center ${isHero ? 'p-3' : 'p-5'}`}>
+
+      <div
+        className={`relative flex h-full w-full items-center justify-center ${isHero ? 'p-3' : 'p-5'}`}
+      >
         <svg
           aria-hidden="true"
           viewBox="0 0 400 200"
@@ -243,7 +324,7 @@ export function VehicleSilhouette({
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0.28" y2="1">
               <stop offset="0%" stopColor={BODY_TOP} />
-              <stop offset="100%" stopColor="#8FB0FF" />
+              <stop offset="100%" stopColor="#E8DCC6" />
             </linearGradient>
           </defs>
           <Shape fill={`url(#${gradientId})`} />

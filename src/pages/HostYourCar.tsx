@@ -1,5 +1,8 @@
 import { EarningsTeaser } from '../components/EarningsTeaser'
 import { ListingWizard } from '../components/ListingWizard'
+import { MileMarker } from '../components/RoadLine'
+import { SunBand } from '../components/CoastalHero'
+import { WaveDivider } from '../components/WaveDivider'
 import { siteConfig } from '../site.config'
 
 interface HostPoint {
@@ -24,31 +27,20 @@ const HOST_POINTS: HostPoint[] = [
 
 export function HostYourCar(): JSX.Element {
   return (
-    <div className="pb-16">
-      <section className="relative overflow-hidden bg-navy">
-        <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(158deg, #0a0f1c 0%, #111a2e 58%, #182440 100%)' }}
-          />
-          <div className="absolute left-1/2 top-[-42%] h-[150%] w-[130%] max-w-[880px] -translate-x-1/2">
-            <div className="hero-glow" />
-          </div>
-        </div>
-
-        <div className="relative mx-auto max-w-6xl px-4 pb-11 pt-10 sm:px-6 md:pb-16 md:pt-14">
-          <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-brand-300">
-            Host preview - {siteConfig.region}
-          </p>
-          <h1 className="mt-3 max-w-3xl font-display text-[30px] font-extrabold leading-[1.08] tracking-[-0.03em] text-white sm:text-4xl md:text-5xl">
+    <div className="band-white pb-16">
+      <SunBand>
+        <div className="shell relative pb-16 pt-12 md:pb-20 md:pt-16">
+          <MileMarker>Host preview - {siteConfig.region}</MileMarker>
+          <h1 className="mt-4 max-w-3xl font-display text-[32px] font-extrabold leading-[1.05] tracking-[-0.03em] text-ink sm:text-4xl md:text-5xl">
             Your parked car could cover a bill or two.
           </h1>
-          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-white/75 sm:text-base">
+          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-ink-muted sm:text-base">
             Put it on the board for the days you are not driving it, pick the price you want, and
             watch the plain arithmetic before anything else happens.
           </p>
         </div>
-      </section>
+      </SunBand>
+      <WaveDivider to="white" className="bg-sand" />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mt-8 md:mt-10">
@@ -64,7 +56,7 @@ export function HostYourCar(): JSX.Element {
               <article key={point.title} className="card p-5">
                 <span
                   aria-hidden="true"
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 font-mono text-[13px] font-semibold text-brand-600"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-tint font-mono text-[13px] font-semibold text-emerald-deep"
                 >
                   {index + 1}
                 </span>
@@ -79,6 +71,7 @@ export function HostYourCar(): JSX.Element {
           <ListingWizard />
         </div>
       </div>
+      <WaveDivider to="sand" className="bg-white" />
     </div>
   )
 }

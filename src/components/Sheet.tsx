@@ -134,7 +134,7 @@ export function Sheet({ open, onClose, title, children, footer }: SheetProps): J
         className={`sheet-panel flex max-h-[88vh] flex-col overflow-hidden focus:outline-none ${panelMotion}`}
       >
         <div aria-hidden="true" className="flex shrink-0 justify-center pt-3 md:hidden">
-          <span className="h-1.5 w-10 rounded-full bg-navy/15" />
+          <span className="h-1.5 w-10 rounded-full bg-ink/15" />
         </div>
 
         <div className="flex shrink-0 items-start justify-between gap-3 px-5 pb-3 pt-4 md:pt-6">
@@ -145,7 +145,7 @@ export function Sheet({ open, onClose, title, children, footer }: SheetProps): J
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="focusable -mr-2 -mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-ink-muted transition-colors hover:bg-surface hover:text-ink"
+            className="focusable -mr-2 -mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-ink-muted transition-colors hover:bg-sand hover:text-ink"
           >
             <IconClose className="h-5 w-5" />
           </button>

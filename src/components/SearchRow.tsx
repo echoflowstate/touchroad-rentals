@@ -30,7 +30,7 @@ export function SearchRow({ filters, onChange, onSearch }: SearchRowProps): JSX.
 
   return (
     <form
-      className="card-flat p-4 shadow-card md:p-5"
+      className="card-flat p-4 shadow-lift md:p-5"
       onSubmit={(event) => {
         event.preventDefault()
         onSearch()
@@ -83,7 +83,7 @@ export function SearchRow({ filters, onChange, onSearch }: SearchRowProps): JSX.
           />
         </div>
 
-        <button type="submit" className="btn-primary h-[48px] w-full md:w-auto md:px-7">
+        <button type="submit" className="btn-primary btn-glare h-[48px] w-full md:w-auto md:px-7">
           <IconSearch className="h-5 w-5" />
           Search
         </button>
