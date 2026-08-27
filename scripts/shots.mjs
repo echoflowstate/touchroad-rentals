@@ -128,12 +128,23 @@ async function main() {
     .innerText()
     .catch(() => null)
 
-  // A5: the planner popover with a road range drawn across the month gap.
+  // A5: the planner popover with a road range drawn across the month gap. The
+  // two dates are picked relative to the month rather than as a fixed number of
+  // days out, so both stay inside the pair of months the popover is showing
+  // whatever day of the year this is run on.
   {
-    const today = await dp.evaluate(() => {
+    const marks = await dp.evaluate(() => {
       const now = new Date()
       const pad = (n) => String(n).padStart(2, '0')
-      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+      const today = iso(now)
+      const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+      const lateThisMonth = iso(new Date(now.getFullYear(), now.getMonth(), lastOfMonth - 2))
+      const tomorrow = iso(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1))
+      return {
+        start: lateThisMonth > today ? lateThisMonth : tomorrow,
+        end: iso(new Date(now.getFullYear(), now.getMonth() + 1, 4)),
+      }
     })
     await openPlanner(dp)
     await dp.waitForTimeout(400)
@@ -143,8 +154,8 @@ async function main() {
       .count()
     // Hold the popover open on a settled range by hovering rather than picking,
     // because picking the drop-off is what closes it.
-    await pickDay(dp, shiftISO(today, 20))
-    await dp.locator(`[data-day="${shiftISO(today, 40)}"]`).first().hover()
+    await pickDay(dp, marks.start)
+    await dp.locator(`[data-day="${marks.end}"]`).first().hover()
     await dp.waitForTimeout(700)
     await shot(dp, 'still-1440-planner-road-range')
     findings.checks.plannerDesktopRoad = await dp
@@ -289,13 +300,19 @@ async function main() {
     .locator('[role="dialog"] [data-testid="road-day-count"]')
     .count()
 
-  const today = await pp.evaluate(() => {
+  // One month at a time on a phone, so page forward once and pick a range that
+  // wraps two rows inside the next month.
+  const marks = await pp.evaluate(() => {
     const now = new Date()
     const pad = (n) => String(n).padStart(2, '0')
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+    const day = (n) => {
+      const d = new Date(now.getFullYear(), now.getMonth() + 1, n)
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    }
+    return { start: day(8), end: day(17) }
   })
-  await pickDay(pp, today)
-  await pickDay(pp, shiftISO(today, 5))
+  await pickDay(pp, marks.start)
+  await pickDay(pp, marks.end)
   await pp.waitForTimeout(700)
   await shot(pp, 'still-390-planner-road-range')
   findings.checks.plannerRoadPath = await pp.locator('[data-testid="road-range-path"]').count()
@@ -350,14 +367,18 @@ async function main() {
   // A5 under reduced motion: the planner still selects and still tints, with
   // nothing moving.
   {
-    const today = await rmp.evaluate(() => {
+    const marks = await rmp.evaluate(() => {
       const now = new Date()
       const pad = (n) => String(n).padStart(2, '0')
-      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      const day = (n) => {
+        const d = new Date(now.getFullYear(), now.getMonth() + 1, n)
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+      }
+      return { start: day(6), end: day(15) }
     })
     await openPlanner(rmp)
-    await pickDay(rmp, shiftISO(today, 2))
-    await rmp.locator(`[data-day="${shiftISO(today, 9)}"]`).first().hover()
+    await pickDay(rmp, marks.start)
+    await rmp.locator(`[data-day="${marks.end}"]`).first().hover()
     await rmp.waitForTimeout(500)
     await shot(rmp, 'still-1440-planner-reduced-motion')
     findings.checks.plannerReducedMotionAnimations = await rmp.evaluate(() => {
@@ -451,13 +472,6 @@ async function pickDay(page, iso) {
     await page.waitForTimeout(320)
   }
   return false
-}
-
-function shiftISO(value, days) {
-  const [y, m, d] = value.split('-').map(Number)
-  const date = new Date(y, m - 1, d + days)
-  const pad = (n) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
 async function signIn(page, name) {
