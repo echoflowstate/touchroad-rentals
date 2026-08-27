@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useReducedMotion } from '../lib/motion'
+import { RoadTraffic } from './RoadTraffic'
 
 /**
  * M3 / E1: the coastal scene behind the Browse hero, drawn entirely in code.
@@ -145,61 +146,13 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
 
         {/* Sand foreground */}
         <div
-          className="absolute inset-x-0 bottom-0 top-[75%]"
+          className="absolute inset-x-0 bottom-0 top-[70%]"
           style={{
             background: 'linear-gradient(180deg, #F7F2E9 0%, #F3EADB 62%, #EFE7D8 100%)',
           }}
         />
 
-        {/* The road ribbon sweeping across the sand */}
-        <div className="absolute inset-x-0 bottom-0 top-[80%]" style={layer(5)}>
-          <svg
-            viewBox="0 0 1440 240"
-            preserveAspectRatio="none"
-            className="absolute inset-0 h-full w-full"
-            focusable="false"
-          >
-            <path
-              d="M-40 210C240 150 520 122 820 130c240 6 420 26 700 66v60H-40z"
-              fill="#0F2E28"
-              opacity="0.86"
-            />
-            <path
-              d="M-40 218C240 158 520 130 820 138c240 6 420 26 700 66"
-              fill="none"
-              stroke="#FFF6E4"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeDasharray="26 30"
-              opacity="0.85"
-            />
-          </svg>
-        </div>
-
-        {/* Traffic: the near car crosses left to right and loops; a smaller one
-            runs the other way further up the road. Both are transform-only. */}
-        <div className="absolute inset-x-0 bottom-[4.5%] h-16" style={layer(3)}>
-          <div
-            className={`absolute bottom-0 left-0 w-20 sm:w-28 ${
-              reduced ? 'translate-x-[8vw]' : 'animate-drive-back'
-            }`}
-            style={{ opacity: 0.55 }}
-          >
-            <SideCar tone="far" spin={!reduced} />
-          </div>
-        </div>
-
-        <div className="absolute inset-x-0 bottom-[2%] h-24" style={layer(2)}>
-          <div
-            className={`absolute bottom-0 left-0 w-28 sm:w-36 lg:w-44 ${
-              reduced ? 'translate-x-[6vw]' : 'animate-drive-across'
-            }`}
-          >
-            <span className={`block ${reduced ? '' : 'animate-car-bob'}`}>
-              <SideCar spin={!reduced} />
-            </span>
-          </div>
-        </div>
+        <RoadTraffic style={layer(3)} />
 
         {/* Gulls drifting across the sky */}
         {!reduced && (
@@ -234,38 +187,6 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
       {/* ---- the content riding on the scene ---- */}
       {children}
     </div>
-  )
-}
-
-/** A small side-on car in the brand palette, matching the silhouette family. */
-function SideCar({ tone = 'near', spin = false }: { tone?: 'near' | 'far'; spin?: boolean }) {
-  const body = tone === 'far' ? '#3FA694' : '#0B7458'
-  const glass = tone === 'far' ? '#CFEFE8' : '#AEE5DC'
-  return (
-    <svg viewBox="0 0 200 90" aria-hidden="true" focusable="false" className="w-full">
-      <ellipse cx="100" cy="80" rx="74" ry="6" fill="#0F2E28" opacity="0.16" />
-      <path
-        d="M18 62c0-9 5-14 13-16l16-4 16-13c5-4 11-6 18-6h24c9 0 17 4 23 11l12 14 20 5c8 2 12 7 12 15v6c0 4-3 7-7 7H25c-4 0-7-3-7-7z"
-        fill={body}
-      />
-      <path d="M69 33c3-3 7-4 11-4h20c7 0 13 3 18 9l8 9H60z" fill={glass} />
-      <rect x="96" y="30" width="3" height="17" fill={body} opacity="0.7" />
-      <rect x="24" y="52" width="12" height="6" rx="3" fill="#FFC65C" />
-      <rect x="166" y="52" width="10" height="6" rx="3" fill="#F2542E" />
-      {[58, 146].map((cx) => (
-        <g key={cx}>
-          <circle cx={cx} cy="72" r="14" fill="#0F2E28" />
-          {/* the spoke makes the rotation readable at this size */}
-          <g
-            className={spin ? 'animate-wheel-spin' : undefined}
-            style={{ transformOrigin: `${cx}px 72px` }}
-          >
-            <circle cx={cx} cy="72" r="6" fill="#7FD4C8" />
-            <rect x={cx - 0.9} y="64" width="1.8" height="16" rx="0.9" fill="#0F2E28" opacity="0.55" />
-          </g>
-        </g>
-      ))}
-    </svg>
   )
 }
 
