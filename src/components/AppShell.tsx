@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useReducedMotion } from '../lib/motion'
 import { siteConfig } from '../site.config'
 import { useAppData } from '../state/AppState'
@@ -53,12 +53,12 @@ function DesktopNav() {
       className="sticky top-[29px] z-30 hidden border-b border-line bg-white/85 backdrop-blur md:block"
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-6">
-        <NavLink to="/" className="focusable flex items-center gap-2.5 rounded-xl">
+        <Link to="/" className="focusable flex items-center gap-2.5 rounded-xl">
           <BrandMark />
           <span className="font-display text-[17px] font-extrabold tracking-[-0.02em] text-ink">
             {siteConfig.brandName}
           </span>
-        </NavLink>
+        </Link>
 
         <nav aria-label="Primary" className="ml-auto">
           <ul className="flex items-center gap-1">
@@ -117,7 +117,7 @@ function BottomTabs() {
   return (
     <nav
       data-testid="bottom-tabs"
-      aria-label="Primary"
+      aria-label="Primary tabs"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-navy-600 bg-navy pb-[env(safe-area-inset-bottom,0px)] md:hidden"
     >
       <ul className="mx-auto flex max-w-md">
@@ -159,7 +159,7 @@ function BottomTabs() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-surface">
+    <div className="flex min-h-[100dvh] flex-col bg-surface">
       <a
         href="#main"
         className="focusable sr-only left-3 top-9 z-50 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card focus:not-sr-only focus:absolute"

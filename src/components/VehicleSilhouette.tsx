@@ -31,7 +31,8 @@ function Wheel({ cx, cy = WHEEL_CY, r = WHEEL_R }: { cx: number; cy?: number; r?
   return (
     <g>
       <circle cx={cx} cy={cy} r={r} fill={TIRE} />
-      <circle cx={cx} cy={cy} r={r * 0.4} fill={HUB} />
+      <circle cx={cx} cy={cy} r={r * 0.62} fill="none" stroke={HUB} strokeWidth={2} opacity={0.75} />
+      <circle cx={cx} cy={cy} r={r * 0.34} fill={HUB} />
     </g>
   )
 }
@@ -144,18 +145,18 @@ function ConvertibleShape({ fill }: ShapeProps) {
       <Shadow from={46} to={357} />
       <Wheel cx={110} />
       <Wheel cx={298} />
+      {/* open cockpit, with the top stowed in the mound behind the seats */}
       <path
-        d="M46 152 L46 138 Q46 124 62 120 L124 111 L150 106 L166 124 L240 124 L252 103 L292 110 L340 121 Q357 125 357 140 L357 152 L324 152 A26 26 0 0 0 272 152 L136 152 A26 26 0 0 0 84 152 Z"
+        d="M46 152 L46 138 Q46 124 62 120 L124 111 L150 107 L162 124 L240 124 Q248 105 268 101 Q292 100 300 112 L340 121 Q357 125 357 140 L357 152 L324 152 A26 26 0 0 0 272 152 L136 152 A26 26 0 0 0 84 152 Z"
         fill={fill}
       />
-      {/* folded top stacked behind the seats */}
-      <path d="M246 108 Q272 92 302 110 Z" fill={fill} />
-      <Seam d="M250 106 L298 109" opacity={0.28} />
-      <rect x={194} y={90} width={17} height={34} rx={8} fill={fill} />
-      <rect x={216} y={90} width={17} height={34} rx={8} fill={fill} />
+      <Seam d="M248 116 L300 118" opacity={0.26} />
+      <Seam d="M186 128 L186 148" />
+      <rect x={196} y={98} width={16} height={28} rx={8} fill={fill} />
+      <rect x={218} y={98} width={16} height={28} rx={8} fill={fill} />
       {/* windshield frame standing on its own, no roof */}
-      <Glass d="M152 104 L176 81 L192 81 L192 104 Z" opacity={0.5} />
-      <Seam d="M150 105 L175 79 L193 79" width={4.5} color={BODY_TOP} opacity={0.9} />
+      <Glass d="M150 106 L168 82 L182 82 L166 106 Z" opacity={0.5} />
+      <Seam d="M150 107 L168 81 L182 81 L166 107" width={4} color={BODY_TOP} opacity={0.9} />
     </g>
   )
 }
@@ -174,7 +175,7 @@ function GolfCartShape({ fill }: ShapeProps) {
       <rect x={104} y={50} width={194} height={11} rx={5} fill={fill} />
       <rect x={116} y={58} width={6} height={66} rx={3} fill={fill} />
       <rect x={284} y={58} width={6} height={50} rx={3} fill={fill} />
-      <Glass d="M126 120 L134 63 L146 63 L138 120 Z" opacity={0.45} />
+      <Glass d="M123 122 L133 62 L150 62 L140 122 Z" opacity={0.45} />
       {/* bench seat */}
       <rect x={154} y={128} width={70} height={10} rx={3} fill={fill} />
       <rect x={219} y={94} width={17} height={44} rx={7} fill={fill} />
