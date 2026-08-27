@@ -63,7 +63,7 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
         }
 
   return (
-    <div ref={sceneRef} className="relative isolate min-h-[620px] overflow-hidden md:min-h-[720px]">
+    <div ref={sceneRef} className="relative isolate min-h-[620px] overflow-hidden pb-20 sm:pb-10 md:min-h-[720px] md:pb-0">
       {/* ---- the scene ---- */}
       <div aria-hidden="true" className="absolute inset-0 -z-10">
         {/* Sky */}
@@ -91,7 +91,10 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
         </div>
 
         {/* Far water band */}
-        <div className="absolute inset-x-0 top-[58%] h-[15%]" style={layer(8)}>
+        <div
+          className={`absolute inset-x-0 top-[58%] h-[15%] ${reduced ? '' : 'animate-water-bob'}`}
+          style={layer(8)}
+        >
           <div
             className="absolute inset-0"
             style={{
@@ -173,15 +176,59 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
           </svg>
         </div>
 
-        {/* The car that drives in once and settles */}
-        <div
-          className={`absolute bottom-[3%] left-[6%] w-24 sm:w-32 lg:w-40 ${
-            reduced ? '' : 'animate-car-drive-in'
-          }`}
-          style={layer(3)}
-        >
-          <SideCar />
+        {/* Traffic: the near car crosses left to right and loops; a smaller one
+            runs the other way further up the road. Both are transform-only. */}
+        <div className="absolute inset-x-0 bottom-[4.5%] h-16" style={layer(3)}>
+          <div
+            className={`absolute bottom-0 left-0 w-20 sm:w-28 ${
+              reduced ? 'translate-x-[8vw]' : 'animate-drive-back'
+            }`}
+            style={{ opacity: 0.55 }}
+          >
+            <SideCar tone="far" spin={!reduced} />
+          </div>
         </div>
+
+        <div className="absolute inset-x-0 bottom-[2%] h-24" style={layer(2)}>
+          <div
+            className={`absolute bottom-0 left-0 w-28 sm:w-36 lg:w-44 ${
+              reduced ? 'translate-x-[6vw]' : 'animate-drive-across'
+            }`}
+          >
+            <span className={`block ${reduced ? '' : 'animate-car-bob'}`}>
+              <SideCar spin={!reduced} />
+            </span>
+          </div>
+        </div>
+
+        {/* Gulls drifting across the sky */}
+        {!reduced && (
+          <>
+            <Gull className="absolute left-0 top-[7%] animate-gull-drift" delay="0s" scale={1} />
+            <Gull
+              className="absolute left-0 top-[13%] animate-gull-drift"
+              delay="-9s"
+              scale={0.72}
+            />
+            <Gull
+              className="absolute left-0 top-[18%] animate-gull-drift"
+              delay="-17s"
+              scale={0.55}
+            />
+          </>
+        )}
+
+        {/* Slow clouds, well behind everything else */}
+        {!reduced && (
+          <>
+            <Cloud className="absolute left-0 top-[8%] animate-cloud-drift" delay="0s" width={150} />
+            <Cloud
+              className="absolute left-0 top-[30%] animate-cloud-drift"
+              delay="-34s"
+              width={104}
+            />
+          </>
+        )}
       </div>
 
       {/* ---- the content riding on the scene ---- */}
@@ -191,28 +238,89 @@ export function CoastalHero({ children }: { children: ReactNode }): JSX.Element 
 }
 
 /** A small side-on car in the brand palette, matching the silhouette family. */
-function SideCar(): JSX.Element {
+function SideCar({ tone = 'near', spin = false }: { tone?: 'near' | 'far'; spin?: boolean }) {
+  const body = tone === 'far' ? '#3FA694' : '#0B7458'
+  const glass = tone === 'far' ? '#CFEFE8' : '#AEE5DC'
   return (
     <svg viewBox="0 0 200 90" aria-hidden="true" focusable="false" className="w-full">
       <ellipse cx="100" cy="80" rx="74" ry="6" fill="#0F2E28" opacity="0.16" />
       <path
         d="M18 62c0-9 5-14 13-16l16-4 16-13c5-4 11-6 18-6h24c9 0 17 4 23 11l12 14 20 5c8 2 12 7 12 15v6c0 4-3 7-7 7H25c-4 0-7-3-7-7z"
-        fill="#0B7458"
+        fill={body}
       />
-      <path
-        d="M69 33c3-3 7-4 11-4h20c7 0 13 3 18 9l8 9H60z"
-        fill="#AEE5DC"
-      />
-      <rect x="96" y="30" width="3" height="17" fill="#0B7458" opacity="0.7" />
+      <path d="M69 33c3-3 7-4 11-4h20c7 0 13 3 18 9l8 9H60z" fill={glass} />
+      <rect x="96" y="30" width="3" height="17" fill={body} opacity="0.7" />
       <rect x="24" y="52" width="12" height="6" rx="3" fill="#FFC65C" />
       <rect x="166" y="52" width="10" height="6" rx="3" fill="#F2542E" />
-      <g>
-        <circle cx="58" cy="72" r="14" fill="#0F2E28" />
-        <circle cx="58" cy="72" r="6" fill="#7FD4C8" />
-        <circle cx="146" cy="72" r="14" fill="#0F2E28" />
-        <circle cx="146" cy="72" r="6" fill="#7FD4C8" />
-      </g>
+      {[58, 146].map((cx) => (
+        <g key={cx}>
+          <circle cx={cx} cy="72" r="14" fill="#0F2E28" />
+          {/* the spoke makes the rotation readable at this size */}
+          <g
+            className={spin ? 'animate-wheel-spin' : undefined}
+            style={{ transformOrigin: `${cx}px 72px` }}
+          >
+            <circle cx={cx} cy="72" r="6" fill="#7FD4C8" />
+            <rect x={cx - 0.9} y="64" width="1.8" height="16" rx="0.9" fill="#0F2E28" opacity="0.55" />
+          </g>
+        </g>
+      ))}
     </svg>
+  )
+}
+
+/** A gull: two strokes, which is all a bird needs at this distance. */
+function Gull({
+  className,
+  delay,
+  scale = 1,
+}: {
+  className?: string
+  delay: string
+  scale?: number
+}): JSX.Element {
+  return (
+    <span className={className} style={{ animationDelay: delay }} aria-hidden="true">
+      <svg
+        width={26 * scale}
+        height={12 * scale}
+        viewBox="0 0 26 12"
+        fill="none"
+        focusable="false"
+      >
+        <path
+          d="M1 8c3.5 0 5.5-5 6.5-5S12 8 13 8s3-5 5.5-5S23.5 8 25 8"
+          stroke="#0F2E28"
+          strokeOpacity="0.3"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
+    </span>
+  )
+}
+
+/** Soft cloud shapes, kept very light so they never compete with the copy. */
+function Cloud({
+  className,
+  delay,
+  width,
+}: {
+  className?: string
+  delay: string
+  width: number
+}): JSX.Element {
+  return (
+    <span className={className} style={{ animationDelay: delay }} aria-hidden="true">
+      <svg width={width} height={width * 0.4} viewBox="0 0 150 60" fill="none" focusable="false">
+        <g fill="#FFFFFF" opacity="0.55">
+          <ellipse cx="46" cy="38" rx="34" ry="16" />
+          <ellipse cx="80" cy="30" rx="28" ry="19" />
+          <ellipse cx="110" cy="40" rx="26" ry="14" />
+        </g>
+      </svg>
+    </span>
   )
 }
 

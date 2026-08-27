@@ -150,6 +150,51 @@ export default {
           '45%': { transform: 'translateY(-4px)' },
           '100%': { transform: 'translateY(0)' },
         },
+        // The hero traffic: one car crosses left to right, a smaller one
+        // crosses back the other way further up the road.
+        'drive-across': {
+          '0%': { transform: 'translateX(-14rem)' },
+          '100%': { transform: 'translateX(calc(100vw + 8rem))' },
+        },
+        'drive-back': {
+          '0%': { transform: 'translateX(calc(100vw + 8rem)) scaleX(-1)' },
+          '100%': { transform: 'translateX(-14rem) scaleX(-1)' },
+        },
+        'car-bob': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-1.5px)' },
+        },
+        'wheel-spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'gull-drift': {
+          '0%': { transform: 'translate(-8vw, 0)', opacity: '0' },
+          '10%, 90%': { opacity: '0.75' },
+          '50%': { transform: 'translate(50vw, -14px)' },
+          '100%': { transform: 'translate(112vw, 4px)', opacity: '0' },
+        },
+        'cloud-drift': {
+          '0%': { transform: 'translateX(-10vw)' },
+          '100%': { transform: 'translateX(110vw)' },
+        },
+        'water-bob': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-2px)' },
+        },
+        'glint-sweep': {
+          '0%': { transform: 'translateX(-140%) skewX(-16deg)', opacity: '0' },
+          '35%': { opacity: '1' },
+          '100%': { transform: 'translateX(240%) skewX(-16deg)', opacity: '0' },
+        },
+        sway: {
+          '0%, 100%': { transform: 'rotate(-2.2deg)' },
+          '50%': { transform: 'rotate(2.2deg)' },
+        },
+        'float-idle': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
         'drop-in': {
           '0%': { opacity: '0', transform: 'translateY(-22px) scale(0.97)' },
           '65%': { opacity: '1', transform: 'translateY(4px) scale(1.01)' },
@@ -170,6 +215,16 @@ export default {
         'glare-sweep': 'glare-sweep 720ms ease-out',
         'toast-in': 'toast-in 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'icon-bounce': 'icon-bounce 320ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'drive-across': 'drive-across 17s linear infinite',
+        'drive-back': 'drive-back 27s linear infinite',
+        'car-bob': 'car-bob 1.1s ease-in-out infinite',
+        'wheel-spin': 'wheel-spin 0.7s linear infinite',
+        'gull-drift': 'gull-drift 26s linear infinite',
+        'cloud-drift': 'cloud-drift 70s linear infinite',
+        'water-bob': 'water-bob 4.5s ease-in-out infinite',
+        'glint-sweep': 'glint-sweep 900ms ease-out',
+        sway: 'sway 4s ease-in-out infinite',
+        'float-idle': 'float-idle 5.5s ease-in-out infinite',
         'drop-in': 'drop-in 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
       },
     },

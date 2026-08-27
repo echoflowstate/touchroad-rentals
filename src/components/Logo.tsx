@@ -62,9 +62,27 @@ export function LogoMark({
         {/* Warm sky field */}
         <rect x="0" y="0" width="64" height="64" fill={`url(#${uid}-sky)`} />
 
-        {/* Sun disc in the upper field */}
-        <circle cx="45.5" cy="17.5" r={small ? 8 : 7.5} fill="#FFC65C" />
-        {!small && <circle cx="45.5" cy="17.5" r="10.5" fill="#FFC65C" opacity="0.28" />}
+        {/* Sun disc in the upper field. It swells a little on hover, which is
+            the only thing the mark does interactively. */}
+        <circle
+          cx="45.5"
+          cy="17.5"
+          r={small ? 8 : 7.5}
+          fill="#FFC65C"
+          className="origin-center transition-transform duration-500 ease-spring group-hover/logo:scale-110"
+          style={{ transformOrigin: '45.5px 17.5px' }}
+        />
+        {!small && (
+          <circle
+            cx="45.5"
+            cy="17.5"
+            r="10.5"
+            fill="#FFC65C"
+            opacity="0.28"
+            className="origin-center transition-transform duration-700 ease-spring group-hover/logo:scale-125"
+            style={{ transformOrigin: '45.5px 17.5px' }}
+          />
+        )}
 
         {/* The cresting wave on the right, curling back on itself */}
         <path
@@ -138,7 +156,7 @@ export function Logo({
   }
 
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className ?? ''}`}>
+    <span className={`group/logo inline-flex items-center gap-2.5 ${className ?? ''}`}>
       <LogoMark size={size} />
       <span className="flex flex-col justify-center leading-none">
         <span

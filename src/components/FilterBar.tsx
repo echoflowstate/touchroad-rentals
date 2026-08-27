@@ -1,3 +1,4 @@
+import { useCountUp } from '../lib/countUp'
 import { VEHICLE_CLASSES } from '../types'
 import type { Filters, PriceFilter, SortKey, VehicleClass } from '../types'
 
@@ -28,6 +29,9 @@ function chipClass(active: boolean): string {
 }
 
 export function FilterBar({ filters, onChange, resultCount }: FilterBarProps): JSX.Element {
+  // The count rolls to its new value so a filter change reads as a change.
+  const shownCount = useCountUp(resultCount)
+
   // E4: how many filters are actually narrowing the board right now.
   const activeCount =
     (filters.price !== 'any' ? 1 : 0) +
@@ -114,7 +118,8 @@ export function FilterBar({ filters, onChange, resultCount }: FilterBarProps): J
 
       <div className="flex items-center gap-3 pt-1">
         <p className="label-micro">
-          {resultCount} {resultCount === 1 ? 'car' : 'cars'}
+          <span className="num tabular-nums">{shownCount}</span>{' '}
+          {resultCount === 1 ? 'car' : 'cars'}
         </p>
         {activeCount > 0 ? (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-tint px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-emerald-deep">

@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useReducedMotion } from '../lib/motion'
 import { Calculator } from '../components/Calculator'
 import { MagneticButton } from '../components/MagneticButton'
 import { EmptyState } from '../components/EmptyState'
@@ -92,6 +93,9 @@ export function CarDetail(): JSX.Element {
     setConfirmation({ startDate: start, endDate: end, total: quote.total })
   }, [addTrip])
 
+  // Declared with the other hooks: the not-found branch returns early below.
+  const reducedMotion = useReducedMotion()
+
   const handleRequest = useCallback(() => {
     if (!isSignedIn) {
       openSignIn(() => submitRequest())
@@ -124,15 +128,17 @@ export function CarDetail(): JSX.Element {
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-4 sm:px-6 sm:pt-6">
       <Link
         to="/"
-        className="focusable -ml-1 inline-flex min-h-[44px] items-center gap-1 rounded-lg pr-2 text-sm font-semibold text-ink-muted transition-colors hover:text-ink"
+        className="focusable group -ml-1 inline-flex min-h-[44px] items-center gap-1 rounded-lg pr-2 text-sm font-semibold text-ink-muted transition-colors hover:text-ink"
       >
-        <IconChevronLeft className="h-5 w-5" />
+        <IconChevronLeft className="h-5 w-5 transition-transform duration-200 ease-coast group-hover:-translate-x-1" />
         Back to browse
       </Link>
 
       <div className="mt-3 grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-10">
         <div className="min-w-0">
-          <VehicleSilhouette vehicleClass={listing.vehicleClass} variant="hero" />
+          <div className={reducedMotion ? undefined : 'animate-float-idle'}>
+            <VehicleSilhouette vehicleClass={listing.vehicleClass} variant="hero" />
+          </div>
 
           <div className="mt-5">
             {isUserListing ? (

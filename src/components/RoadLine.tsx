@@ -131,8 +131,11 @@ export function RoadHairline({ className }: { className?: string }): JSX.Element
 /** A mile-marker label that docks onto the road line. */
 export function MileMarker({ children }: { children: React.ReactNode }): JSX.Element {
   return (
-    <span className="inline-flex items-center gap-2">
-      <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald" />
+    <span className="group/marker inline-flex items-center gap-2">
+      <span aria-hidden="true" className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald opacity-40" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald" />
+      </span>
       <span className="label-micro">{children}</span>
     </span>
   )

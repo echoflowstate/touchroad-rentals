@@ -9,9 +9,9 @@
           "div.absolute -inset-16 rounded-full bg-gold/40 blur-2xl animate-",
           "path.[object SVGAnimatedString]",
           "path.[object SVGAnimatedString]",
-          "button.chip shrink-0 ",
-          "button.chip shrink-0 ",
-          "div.pointer-events-none absolute inset-x-[-18%] bottom-[6%] h-[7"
+          "div.absolute bottom-0 left-0 w-20 sm:w-28 animate-drive-back",
+          "svg.[object SVGAnimatedString]",
+          "ellipse.[object SVGAnimatedString]"
         ]
       },
       "/how-it-works": {
@@ -51,6 +51,10 @@
         "clientWidth": 1440,
         "offenders": [
           "path.[object SVGAnimatedString]",
+          "path.[object SVGAnimatedString]",
+          "div.absolute bottom-0 left-0 w-20 sm:w-28 animate-drive-back",
+          "svg.[object SVGAnimatedString]",
+          "ellipse.[object SVGAnimatedString]",
           "path.[object SVGAnimatedString]"
         ]
       },
