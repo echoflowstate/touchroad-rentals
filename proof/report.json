@@ -1,0 +1,89 @@
+{
+  "console": [],
+  "overflow": {
+    "360": {
+      "/": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "offenders": [
+          "div.absolute left-1/2 top-[-42%] h-[150%] w-[125%] max-w-[980px]",
+          "div.hero-glow",
+          "button.chip shrink-0 ",
+          "button.chip shrink-0 ",
+          "div.pointer-events-none absolute inset-x-[-18%] bottom-[7%] h-[7",
+          "div.pointer-events-none absolute inset-x-[-18%] bottom-[7%] h-[7"
+        ]
+      },
+      "/how-it-works": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "offenders": [
+          "div.absolute left-1/2 top-[-30%] h-[150%] w-[120%] max-w-[900px]",
+          "div.hero-glow"
+        ]
+      },
+      "/host": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "offenders": [
+          "div.absolute left-1/2 top-[-42%] h-[150%] w-[130%] max-w-[880px]",
+          "div.hero-glow"
+        ]
+      },
+      "/account": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "offenders": []
+      },
+      "/car/sample-clubcar-maryesther": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "offenders": []
+      }
+    },
+    "1440": {
+      "/": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "offenders": []
+      },
+      "/how-it-works": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "offenders": []
+      },
+      "/host": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "offenders": []
+      },
+      "/account": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "offenders": []
+      },
+      "/car/sample-clubcar-maryesther": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "offenders": []
+      }
+    }
+  },
+  "checks": {
+    "firstCardId": "sample-clubcar-maryesther",
+    "calcSubtotal": "$29 × 3 days =\n$87",
+    "calcFees": "Service fees\n$0\n\nNo booking fees on Touch Road",
+    "calcTotal": "$87",
+    "requestConfirmation": "Request sent to Danny\n\n(preview - no real booking)\n\nVEHICLE\n2018 Honda Civic\nDATES\nAug 27 to Aug 30\nLENGTH\n3 days\nTOTAL\n$87\n\nYou can find this under Account, in Trips.",
+    "myCarsRows": 1,
+    "tripRows": 1,
+    "yourListingBadges": 1,
+    "browseCardCount": 13,
+    "bottomTabsVisible": true,
+    "rolledTotal": "$145",
+    "reducedMotionCards": 12,
+    "reducedMotionTotal": "$87",
+    "firstRunSignedIn": 0,
+    "firstRunStorage": []
+  }
+}
