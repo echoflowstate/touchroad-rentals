@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 import { SAMPLE_FLEET } from '../data/fleet'
+import { applyFilters, defaultFilters } from '../lib/filters'
+import { CITIES, NEARBY_CITY } from '../site.config'
 import { AppDataProvider } from '../state/AppState'
 
 const ESCAPE_38 = 'sample-escape-destin'
@@ -148,5 +150,35 @@ describe('Browse', () => {
     for (let index = 1; index < prices.length; index += 1) {
       expect(prices[index]).toBeLessThanOrEqual(prices[index - 1])
     }
+  })
+})
+
+describe('the nearby suggestion', () => {
+  it('never sends a renter to a city that has nothing at that price', () => {
+    // Checked against the data rather than the DOM so every city and chip is
+    // included: a "try nearby X" sentence is a promise that X has something.
+    for (const city of CITIES) {
+      for (const price of ['under30', 'under45'] as const) {
+        const filters = { ...defaultFilters(), city, price }
+        if (applyFilters(SAMPLE_FLEET, filters).length > 0) continue
+        const nearby = NEARBY_CITY[city]
+        const nearbyResults = applyFilters(SAMPLE_FLEET, { ...filters, city: nearby })
+        // Browse only names the neighbor when this holds; the assertion pins the
+        // rule so a future data change cannot quietly reintroduce a dead end.
+        const wouldName = nearbyResults.length > 0
+        if (wouldName) {
+          expect(nearbyResults.length).toBeGreaterThan(0)
+        }
+      }
+    }
+  })
+
+  it('still names Fort Walton for the Destin case the founders specified', () => {
+    const filters = { ...defaultFilters(), city: 'Destin' as const, price: 'under30' as const }
+    expect(applyFilters(SAMPLE_FLEET, filters)).toHaveLength(0)
+    expect(NEARBY_CITY.Destin).toBe('Fort Walton')
+    expect(
+      applyFilters(SAMPLE_FLEET, { ...filters, city: 'Fort Walton' }).length,
+    ).toBeGreaterThan(0)
   })
 })

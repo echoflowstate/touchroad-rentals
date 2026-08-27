@@ -69,11 +69,17 @@ export function Browse(): JSX.Element {
   )
 
   function renderEmptyState(): JSX.Element {
-    if (activeCity && nearby && applied.price !== 'any' && wouldMatchWithoutPrice(listings, applied)) {
+    if (activeCity && applied.price !== 'any' && wouldMatchWithoutPrice(listings, applied)) {
       const ceiling = formatUSD(priceCeiling(applied.price))
+      // Name the neighbor only when it really has something at this price,
+      // otherwise the sentence sends the renter to another empty grid.
+      const title =
+        nearby && nearbyHasMatches
+          ? `Nothing under ${ceiling} in ${activeCity} those days - try nearby ${nearby}.`
+          : `Nothing under ${ceiling} in ${activeCity} those days.`
       return (
         <EmptyState
-          title={`Nothing under ${ceiling} in ${activeCity} those days - try nearby ${nearby}.`}
+          title={title}
           body={`There are cars parked in ${activeCity}. None of them sit under ${ceiling} a day.`}
           action={
             <button

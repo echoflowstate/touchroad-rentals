@@ -34,7 +34,7 @@ export function RequestSheet({
           <button type="button" className="btn-navy sm:flex-1" onClick={onClose}>
             Done
           </button>
-          <Link to="/account" className="btn-ghost sm:flex-1" onClick={onClose}>
+          <Link to="/account?tab=trips" className="btn-ghost sm:flex-1" onClick={onClose}>
             Go to Trips
           </Link>
         </div>

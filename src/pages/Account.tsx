@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { EmptyState } from '../components/EmptyState'
 import { IconCheck, IconPencil, IconPin, IconTrash } from '../components/Icons'
 import { Sheet } from '../components/Sheet'
@@ -409,7 +409,19 @@ export const TABS: { key: TabKey; label: string }[] = [
 
 function Account(): JSX.Element {
   const { isSignedIn, session, signOut, openSignIn } = useAppData()
-  const [tab, setTab] = useState<TabKey>('cars')
+  // "Go to Trips" on the request confirmation has to land on Trips, so the tab
+  // is addressable rather than always starting on My cars.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requestedTab: TabKey = searchParams.get('tab') === 'trips' ? 'trips' : 'cars'
+  const [tab, setTabState] = useState<TabKey>(requestedTab)
+
+  const setTab = (next: TabKey): void => {
+    setTabState(next)
+    const params = new URLSearchParams(searchParams)
+    if (next === 'cars') params.delete('tab')
+    else params.set('tab', next)
+    setSearchParams(params, { replace: true })
+  }
   const carsTabId = useId()
   const carsPanelId = useId()
   const tripsTabId = useId()

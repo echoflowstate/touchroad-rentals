@@ -138,3 +138,28 @@ describe('the wizard errors', () => {
     expect(message).toHaveAttribute('role', 'alert')
   })
 })
+
+describe('the request confirmation', () => {
+  it('sends "Go to Trips" to the trips tab, not to My cars', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter initialEntries={['/car/sample-civic-fortwalton']}>
+        <AppDataProvider>
+          <App />
+        </AppDataProvider>
+      </MemoryRouter>,
+    )
+
+    await user.click(await screen.findByTestId('request-button'))
+    await user.type(await screen.findByTestId('auth-name-input'), 'Dana')
+    await user.click(screen.getByTestId('auth-submit'))
+    await screen.findByTestId('request-confirmation')
+
+    await user.click(screen.getByRole('link', { name: /go to trips/i }))
+
+    await waitFor(() =>
+      expect(screen.getByRole('tab', { name: 'Trips' })).toHaveAttribute('aria-selected', 'true'),
+    )
+    expect(screen.getAllByTestId('trip-item').length).toBeGreaterThan(0)
+  })
+})

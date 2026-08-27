@@ -547,8 +547,8 @@ export function ListingWizard(): JSX.Element {
                   ))}
                 </dl>
                 <p className="mt-3 text-sm leading-relaxed text-ink-muted">
-                  Publishing saves this car in your browser and puts it at the top of Browse. No
-                  money moves and nobody is charged.
+                  Publishing saves this car in your browser and puts it on Browse beside the
+                  sample cars. No money moves and nobody is charged.
                 </p>
               </div>
             </div>
