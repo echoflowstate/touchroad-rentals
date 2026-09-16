@@ -3,6 +3,7 @@ import { ListingWizard } from '../components/ListingWizard'
 import { MileMarker } from '../components/RoadLine'
 import { SunBand } from '../components/CoastalHero'
 import { WaveDivider } from '../components/WaveDivider'
+import { commissionLabel } from '../lib/pricing'
 import { siteConfig } from '../site.config'
 
 interface HostPoint {
@@ -13,7 +14,7 @@ interface HostPoint {
 const HOST_POINTS: HostPoint[] = [
   {
     title: 'You set the price',
-    body: 'The number you type is the number a renter reads on the card. Nothing is stacked on top of it, and the fees line stays at $0.',
+    body: 'The number you type is the number a renter reads on the card. Nothing is stacked on top of it for them, and their fees line stays at $0.',
   },
   {
     title: 'You choose the requests',
@@ -22,6 +23,10 @@ const HOST_POINTS: HostPoint[] = [
   {
     title: 'Nothing here charges anyone',
     body: 'This is a preview build. A listing you publish is saved on this device, nothing is booked, and no money moves.',
+  },
+  {
+    title: `Touch Road keeps ${commissionLabel()}`,
+    body: `${commissionLabel()} of what a rental earns you stays with the platform. That is the only cut anywhere in the product, and the renter never pays a fee on top of your rate.`,
   },
 ]
 
@@ -51,7 +56,7 @@ export function HostYourCar(): JSX.Element {
           <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
             What hosting means on a preview build
           </h2>
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {HOST_POINTS.map((point, index) => (
               <article key={point.title} className="card p-5">
                 <span

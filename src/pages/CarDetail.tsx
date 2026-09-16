@@ -27,6 +27,8 @@ interface Confirmation {
   startDate: string
   endDate: string
   total: number
+  /** The stored trip, so the sheet can run its pick-up clock. */
+  tripId: string
 }
 
 const WHY_POINTS = [
@@ -39,13 +41,20 @@ function SpecTile({
   caption,
   value,
   icon,
+  index = 0,
 }: {
   caption: string
   value: string
   icon?: JSX.Element
+  /** Position in the row, which is all the stagger needs. */
+  index?: number
 }) {
+  const reduced = useReducedMotion()
   return (
-    <div className="card-flat px-3 py-3">
+    <div
+      className={`card-flat px-3 py-3 ${reduced ? '' : 'animate-card-rise'}`}
+      style={reduced ? undefined : { animationDelay: `${index * 70}ms` }}
+    >
       <span className="label-micro flex items-center gap-1.5">
         {icon}
         {caption}
@@ -57,7 +66,8 @@ function SpecTile({
 
 export function CarDetail(): JSX.Element {
   const { id } = useParams()
-  const { getListing, isSignedIn, openSignIn, addTrip } = useAppData()
+  const { getListing, isSignedIn, openSignIn, addTrip, trips, confirmPickup, pushToast } =
+    useAppData()
   const listing = id ? getListing(id) : undefined
 
   const [dates, setDates] = useState<DateRange>(() => {
@@ -78,11 +88,16 @@ export function CarDetail(): JSX.Element {
     if (!current) return
     const { start, end } = datesRef.current
     const quote = computeQuote(current.pricePerDay, start, end)
-    addTrip({
+    // The car is collected where it is parked, and that is what gets confirmed.
+    // The clock does not start here: it starts when the renter agrees to it.
+    const trip = addTrip({
       listingId: current.id,
       listingTitle: listingTitle(current),
       hostName: current.hostName,
       city: current.city,
+      pickupCity: current.city,
+      pickupConfirmedAt: null,
+      pickedUpAt: null,
       startDate: start,
       endDate: end,
       days: quote.days,
@@ -90,7 +105,7 @@ export function CarDetail(): JSX.Element {
       subtotal: quote.subtotal,
       total: quote.total,
     })
-    setConfirmation({ startDate: start, endDate: end, total: quote.total })
+    setConfirmation({ startDate: start, endDate: end, total: quote.total, tripId: trip.id })
   }, [addTrip])
 
   // Declared with the other hooks: the not-found branch returns early below.
@@ -120,6 +135,11 @@ export function CarDetail(): JSX.Element {
     )
   }
 
+  // Read back out of state rather than kept alongside it, so the sheet sees the
+  // clock start the moment the location is confirmed.
+  const requestedTrip = confirmation
+    ? (trips.find((candidate) => candidate.id === confirmation.tripId) ?? null)
+    : null
   const isUserListing = listing.source === 'user'
   const quote = computeQuote(listing.pricePerDay, dates.start, dates.end)
   const title = listingTitle(listing)
@@ -162,21 +182,24 @@ export function CarDetail(): JSX.Element {
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <SpecTile caption="Class" value={listing.vehicleClass} />
+            <SpecTile caption="Class" value={listing.vehicleClass} index={0} />
             <SpecTile
               caption="Seats"
               value={`${listing.seats}`}
               icon={<IconSeat className="h-3.5 w-3.5" />}
+              index={1}
             />
             <SpecTile
               caption="Transmission"
               value={listing.transmission}
               icon={<IconGear className="h-3.5 w-3.5" />}
+              index={2}
             />
             <SpecTile
               caption="Fuel"
               value={listing.fuel}
               icon={<IconFuel className="h-3.5 w-3.5" />}
+              index={3}
             />
           </div>
 
@@ -237,6 +260,12 @@ export function CarDetail(): JSX.Element {
         startDate={confirmation ? confirmation.startDate : dates.start}
         endDate={confirmation ? confirmation.endDate : dates.end}
         total={confirmation ? confirmation.total : quote.total}
+        trip={requestedTrip}
+        onConfirmPickup={() => {
+          if (!requestedTrip) return
+          confirmPickup(requestedTrip.id)
+          pushToast(`Pick-up confirmed in ${requestedTrip.pickupCity}. Your window has started.`)
+        }}
       />
     </div>
   )

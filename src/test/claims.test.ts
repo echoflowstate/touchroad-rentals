@@ -229,38 +229,38 @@ describe('the sample fleet', () => {
     }
   })
 
-  it('holds four gas sedans between $25 and $32', () => {
+  it('holds four gas sedans between $41 and $52', () => {
     const sedans = inClass('Car').filter((listing) => listing.fuel === 'Gas')
     expect(sedans).toHaveLength(4)
     for (const listing of sedans) {
-      expect(listing.pricePerDay).toBeGreaterThanOrEqual(25)
-      expect(listing.pricePerDay).toBeLessThanOrEqual(32)
+      expect(listing.pricePerDay).toBeGreaterThanOrEqual(41)
+      expect(listing.pricePerDay).toBeLessThanOrEqual(52)
     }
   })
 
-  it('holds one hybrid car at $34', () => {
+  it('holds one hybrid car at $55', () => {
     const hybrids = SAMPLE_FLEET.filter((listing) => listing.fuel === 'Hybrid')
     expect(hybrids).toHaveLength(1)
     expect(hybrids[0].vehicleClass).toBe('Car')
-    expect(hybrids[0].pricePerDay).toBe(34)
+    expect(hybrids[0].pricePerDay).toBe(55)
   })
 
-  it('holds two SUVs between $38 and $45', () => {
+  it('holds two SUVs between $62 and $72', () => {
     const suvs = inClass('SUV')
     expect(suvs).toHaveLength(2)
-    expect(suvs.map((listing) => listing.pricePerDay).sort((a, b) => a - b)).toEqual([38, 45])
+    expect(suvs.map((listing) => listing.pricePerDay).sort((a, b) => a - b)).toEqual([62, 72])
   })
 
-  it('holds one truck at $45, one van at $40, and one convertible at $55', () => {
-    expect(inClass('Truck').map((listing) => listing.pricePerDay)).toEqual([45])
-    expect(inClass('Van').map((listing) => listing.pricePerDay)).toEqual([40])
-    expect(inClass('Convertible').map((listing) => listing.pricePerDay)).toEqual([55])
+  it('holds one truck at $74, one van at $65, and one convertible at $89', () => {
+    expect(inClass('Truck').map((listing) => listing.pricePerDay)).toEqual([74])
+    expect(inClass('Van').map((listing) => listing.pricePerDay)).toEqual([65])
+    expect(inClass('Convertible').map((listing) => listing.pricePerDay)).toEqual([89])
   })
 
-  it('holds two golf carts between $20 and $25', () => {
+  it('holds two golf carts between $34 and $39', () => {
     const carts = inClass('Golf cart')
     expect(carts).toHaveLength(2)
-    expect(carts.map((listing) => listing.pricePerDay).sort((a, b) => a - b)).toEqual([20, 25])
+    expect(carts.map((listing) => listing.pricePerDay).sort((a, b) => a - b)).toEqual([34, 39])
   })
 
   it('gives every listing a line and a host first name', () => {

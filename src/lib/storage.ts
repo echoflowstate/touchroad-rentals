@@ -1,6 +1,6 @@
 import { CITIES, siteConfig } from '../site.config'
 import { VEHICLE_CLASSES } from '../types'
-import type { Listing, Session, Trip } from '../types'
+import type { AccountRole, Listing, Session, Trip } from '../types'
 
 /**
  * Everything the preview remembers lives in this browser and nowhere else.
@@ -48,6 +48,7 @@ function removeKey(key: string): void {
   }
 }
 
+const ROLES: AccountRole[] = ['guest', 'host']
 const TRANSMISSIONS = ['Automatic', 'Manual']
 const FUELS = ['Gas', 'Hybrid', 'Electric']
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -85,6 +86,28 @@ function isListing(value: unknown): value is Listing {
   )
 }
 
+function isRole(value: unknown): value is AccountRole {
+  return ROLES.indexOf(value as AccountRole) !== -1
+}
+
+/**
+ * Fills in the fields a trip gained after it was written.
+ *
+ * A row stored before the pick-up window existed is still a perfectly good
+ * trip, so it is completed rather than dropped: the pick-up city falls back to
+ * the city it was already carrying, and the clock simply has not started.
+ */
+function completeTrip(trip: Trip): Trip {
+  return {
+    ...trip,
+    pickupCity: (CITIES as readonly string[]).includes(trip.pickupCity as string)
+      ? trip.pickupCity
+      : trip.city,
+    pickupConfirmedAt: isNumber(trip.pickupConfirmedAt) ? trip.pickupConfirmedAt : null,
+    pickedUpAt: isNumber(trip.pickedUpAt) ? trip.pickedUpAt : null,
+  }
+}
+
 /** Same reasoning as isListing: a trip row is only kept if it can render. */
 function isTrip(value: unknown): value is Trip {
   if (!value || typeof value !== 'object') return false
@@ -120,7 +143,17 @@ export function saveUserListings(listings: Listing[]): void {
 export function loadSession(): Session | null {
   const raw = readJSON<Session | null>(SESSION_KEY, null)
   if (!raw || typeof raw.name !== 'string' || raw.name.trim() === '') return null
-  return { name: raw.name, signedInAt: typeof raw.signedInAt === 'number' ? raw.signedInAt : 0 }
+  // A session stored before roles existed is a guest, which is the safe read:
+  // it grants nothing that was not there before.
+  const role: AccountRole = isRole(raw.role) ? raw.role : 'guest'
+  // Only a host account can be looking at the host side, whatever is stored.
+  const mode: AccountRole = role === 'host' && isRole(raw.mode) ? raw.mode : 'guest'
+  return {
+    name: raw.name,
+    signedInAt: typeof raw.signedInAt === 'number' ? raw.signedInAt : 0,
+    role,
+    mode: role === 'host' ? mode : 'guest',
+  }
 }
 
 export function saveSession(session: Session): void {
@@ -134,7 +167,7 @@ export function clearSession(): void {
 export function loadTrips(): Trip[] {
   const raw = readJSON<unknown[]>(TRIPS_KEY, [])
   if (!Array.isArray(raw)) return []
-  return raw.filter(isTrip)
+  return raw.filter(isTrip).map(completeTrip)
 }
 
 export function saveTrips(trips: Trip[]): void {

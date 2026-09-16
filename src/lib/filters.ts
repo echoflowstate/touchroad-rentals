@@ -16,8 +16,8 @@ export function defaultFilters(): Filters {
 }
 
 export function priceCeiling(price: Filters['price']): number {
-  if (price === 'under30') return 30
-  if (price === 'under45') return 45
+  if (price === 'under50') return 50
+  if (price === 'under70') return 70
   return Number.POSITIVE_INFINITY
 }
 

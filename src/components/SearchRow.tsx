@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { CITIES } from '../site.config'
 import type { City, Filters } from '../types'
 import { CityHint } from './CityHint'
+import { ConfirmBanner } from './ConfirmBanner'
 import { DateRangeField } from './DateRangeField'
 import { IconSearch } from './Icons'
 
@@ -18,8 +20,24 @@ export function SearchRow({
   onSearch,
   onDatesPicked,
 }: SearchRowProps): JSX.Element {
+  // Choosing a city is a proposal, not a commitment. It is held here until the
+  // banner is answered, so the results never move under someone who picked the
+  // wrong line in the list.
+  const [pendingCity, setPendingCity] = useState<City | 'all' | null>(null)
+
   function handleCity(value: string) {
-    onChange({ ...filters, city: value === 'all' ? 'all' : (value as City) })
+    const next = value === 'all' ? 'all' : (value as City)
+    if (next === filters.city) {
+      setPendingCity(null)
+      return
+    }
+    setPendingCity(next)
+  }
+
+  function confirmCity() {
+    if (pendingCity === null) return
+    onChange({ ...filters, city: pendingCity })
+    setPendingCity(null)
   }
 
   // The picker orders the pair before it hands them over, so the drop-off can
@@ -50,7 +68,8 @@ export function SearchRow({
           <select
             id="search-city"
             className="field"
-            value={filters.city}
+            aria-describedby={pendingCity !== null ? 'search-city-confirm-question' : undefined}
+            value={pendingCity ?? filters.city}
             onChange={(event) => handleCity(event.target.value)}
           >
             <option value="all">All cities</option>
@@ -75,6 +94,22 @@ export function SearchRow({
           Search
         </button>
       </div>
+
+      <ConfirmBanner
+        open={pendingCity !== null}
+        id="search-city-confirm"
+        question="Are you sure you want to confirm location?"
+        detail={
+          pendingCity === 'all'
+            ? 'Searching every city on the coast.'
+            : `Searching ${pendingCity ?? ''}.`
+        }
+        confirmLabel="Yes, confirm"
+        cancelLabel="Change it"
+        onConfirm={confirmCity}
+        onCancel={() => setPendingCity(null)}
+        className="mt-3"
+      />
     </form>
   )
 }

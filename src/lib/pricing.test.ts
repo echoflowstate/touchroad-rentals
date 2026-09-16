@@ -1,11 +1,14 @@
 import { SAMPLE_FLEET } from '../data/fleet'
 import {
+  HOST_COMMISSION_RATE,
   addDays,
+  commissionLabel,
   computeQuote,
   daysBetween,
   estimateMonthly,
   fleetAverageForClass,
   formatUSD,
+  hostPayout,
   parseISODate,
   toISODate,
   todayISO,
@@ -81,21 +84,21 @@ describe('estimateMonthly', () => {
 
   it('uses the sample SUV average for the host teaser number', () => {
     const average = fleetAverageForClass(SAMPLE_FLEET, 'SUV')
-    expect(estimateMonthly(average, 8)).toBe(336)
+    expect(estimateMonthly(average, 8)).toBe(536)
   })
 })
 
 describe('fleetAverageForClass', () => {
-  it('rounds the two sample SUVs, $38 and $45, to $42', () => {
+  it('rounds the two sample SUVs, $62 and $72, to $67', () => {
     const suvs = SAMPLE_FLEET.filter((listing) => listing.vehicleClass === 'SUV')
-    expect(suvs.map((listing) => listing.pricePerDay).sort((a, b) => a - b)).toEqual([38, 45])
-    expect(fleetAverageForClass(SAMPLE_FLEET, 'SUV')).toBe(42)
+    expect(suvs.map((listing) => listing.pricePerDay).sort((a, b) => a - b)).toEqual([62, 72])
+    expect(fleetAverageForClass(SAMPLE_FLEET, 'SUV')).toBe(67)
   })
 
   it('averages the other classes from the same seeded data', () => {
-    expect(fleetAverageForClass(SAMPLE_FLEET, 'Car')).toBe(29)
-    expect(fleetAverageForClass(SAMPLE_FLEET, 'Golf cart')).toBe(23)
-    expect(fleetAverageForClass(SAMPLE_FLEET, 'Truck')).toBe(45)
+    expect(fleetAverageForClass(SAMPLE_FLEET, 'Car')).toBe(48)
+    expect(fleetAverageForClass(SAMPLE_FLEET, 'Golf cart')).toBe(37)
+    expect(fleetAverageForClass(SAMPLE_FLEET, 'Truck')).toBe(74)
   })
 })
 
@@ -120,5 +123,37 @@ describe('addDays and toISODate', () => {
 
   it('emits todayISO in the shape a date input accepts', () => {
     expect(TODAY).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+})
+
+describe('hostPayout', () => {
+  it('keeps five percent of what a host earns', () => {
+    expect(HOST_COMMISSION_RATE).toBe(0.05)
+    expect(commissionLabel()).toBe('5%')
+  })
+
+  it('splits $536 into $27 kept and $509 paid out', () => {
+    expect(hostPayout(536)).toEqual({ gross: 536, commission: 27, net: 509 })
+  })
+
+  it('always adds back up, whatever the rounding does', () => {
+    for (let gross = 0; gross <= 2000; gross += 1) {
+      const payout = hostPayout(gross)
+      expect(payout.commission + payout.net).toBe(payout.gross)
+      expect(payout.commission).toBeGreaterThanOrEqual(0)
+      expect(payout.net).toBeLessThanOrEqual(gross)
+    }
+  })
+
+  it('takes nothing from nothing, and nothing from a broken number', () => {
+    expect(hostPayout(0)).toEqual({ gross: 0, commission: 0, net: 0 })
+    expect(hostPayout(-40)).toEqual({ gross: 0, commission: 0, net: 0 })
+    expect(hostPayout(Number.NaN)).toEqual({ gross: 0, commission: 0, net: 0 })
+  })
+
+  it('leaves the renter side alone: a quote still has zero fees', () => {
+    const quote = computeQuote(47, TODAY, addDays(TODAY, 3))
+    expect(quote.fees).toBe(0)
+    expect(quote.total).toBe(quote.subtotal)
   })
 })

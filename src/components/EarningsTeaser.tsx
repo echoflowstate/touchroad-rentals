@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { SAMPLE_FLEET } from '../data/fleet'
-import { estimateMonthly, fleetAverageForClass, formatUSD } from '../lib/pricing'
+import {
+  commissionLabel,
+  estimateMonthly,
+  fleetAverageForClass,
+  formatUSD,
+  hostPayout,
+} from '../lib/pricing'
 import { VEHICLE_CLASSES } from '../types'
 import type { VehicleClass } from '../types'
 
@@ -29,6 +35,7 @@ export function EarningsTeaser(): JSX.Element {
       ? 0
       : Math.min(MAX_RATE, Math.max(0, Math.round(parsed)))
   const result = estimateMonthly(safeRate, days)
+  const payout = hostPayout(result)
 
   function changeClass(next: VehicleClass): void {
     setVehicleClass(next)
@@ -41,7 +48,8 @@ export function EarningsTeaser(): JSX.Element {
       <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">Run the numbers</h2>
       <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
         Pick a class, pick how many days a month you would actually hand over the keys, and set the
-        price you want. The whole rate is yours.
+        price you want. Touch Road keeps {commissionLabel()} of what you earn, and the rest is
+        yours.
       </p>
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -132,6 +140,34 @@ export function EarningsTeaser(): JSX.Element {
           </span>
           {'/month'}
         </p>
+        {/* The split, spelled out. The commission is the one cut in the product
+            and it belongs on screen next to the number it comes out of. */}
+        <dl className="mt-4 space-y-2 border-t border-line pt-3.5">
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-sm text-ink-muted">Renter pays</dt>
+            <dd data-testid="earnings-gross" className="num text-sm font-semibold text-ink">
+              {formatUSD(payout.gross)}
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-sm text-ink-muted">
+              Touch Road keeps {commissionLabel()}
+            </dt>
+            <dd data-testid="earnings-commission" className="num text-sm font-semibold text-coral-ink">
+              {`-${formatUSD(payout.commission)}`}
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-3 border-t border-line-soft pt-2.5">
+            <dt className="font-display text-[15px] font-bold text-ink">You keep</dt>
+            <dd
+              data-testid="earnings-net"
+              className="num font-display text-xl font-extrabold text-emerald-deep"
+            >
+              {formatUSD(payout.net)}
+            </dd>
+          </div>
+        </dl>
+
         <p className="label-micro mt-3 normal-case tracking-[0.04em]">
           An estimate from the numbers you picked. Nothing is promised and nothing is charged.
         </p>

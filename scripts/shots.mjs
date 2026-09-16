@@ -281,7 +281,7 @@ async function main() {
   // ---------- interaction frames ----------
   await pp.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
   await settle(pp)
-  const chip = pp.getByRole('button', { name: /under \$30/i }).first()
+  const chip = pp.getByRole('button', { name: /under \$50/i }).first()
   if (await chip.count()) {
     await chip.click()
     await settle(pp, 700)

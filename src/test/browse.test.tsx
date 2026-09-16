@@ -7,7 +7,7 @@ import { applyFilters, defaultFilters } from '../lib/filters'
 import { CITIES, NEARBY_CITY } from '../site.config'
 import { AppDataProvider } from '../state/AppState'
 
-const ESCAPE_38 = 'sample-escape-destin'
+const ESCAPE = 'sample-escape-destin'
 
 function renderApp(route = '/') {
   window.history.pushState({}, '', route)
@@ -63,27 +63,27 @@ describe('Browse', () => {
       .sort((a, b) => a - b)
       .slice(0, 2)
 
-    expect(cheapest).toEqual([20, 25])
+    expect(cheapest).toEqual([34, 39])
     expect(prices.slice(0, 2)).toEqual(cheapest)
     for (let index = 1; index < prices.length; index += 1) {
       expect(prices[index]).toBeGreaterThanOrEqual(prices[index - 1])
     }
   })
 
-  it('drops everything at $30 or more behind the Under $30 chip', async () => {
+  it('drops everything at $50 or more behind the Under $50 chip', async () => {
     const user = userEvent.setup()
     renderApp('/')
     await cards()
 
-    await user.click(screen.getByRole('button', { name: 'Under $30' }))
+    await user.click(screen.getByRole('button', { name: 'Under $50' }))
     const list = await cardsWhen((found) => {
       expect(found).toHaveLength(5)
     })
 
     for (const price of pricesOf(list)) {
-      expect(price).toBeLessThan(30)
+      expect(price).toBeLessThan(50)
     }
-    expect(idsOf(list)).not.toContain(ESCAPE_38)
+    expect(idsOf(list)).not.toContain(ESCAPE)
   })
 
   it('isolates the two golf carts behind the class chip', async () => {
@@ -101,17 +101,18 @@ describe('Browse', () => {
     }
   })
 
-  it('names the nearby city when nothing under $30 sits in Destin', async () => {
+  it('names the nearby city when nothing under $50 sits in Destin', async () => {
     const user = userEvent.setup()
     renderApp('/')
     await cards()
 
-    await user.click(screen.getByRole('button', { name: 'Under $30' }))
+    await user.click(screen.getByRole('button', { name: 'Under $50' }))
     fireEvent.change(screen.getByLabelText('Where'), { target: { value: 'Destin' } })
+    fireEvent.click(await screen.findByTestId('confirm-banner-confirm'))
 
     const empty = await screen.findByTestId('empty-state', {}, { timeout: 3000 })
     expect(
-      within(empty).getByText('Nothing under $30 in Destin those days - try nearby Fort Walton.'),
+      within(empty).getByText('Nothing under $50 in Destin those days - try nearby Fort Walton.'),
     ).toBeInTheDocument()
     expect(screen.queryAllByTestId('listing-card')).toHaveLength(0)
   })
@@ -141,12 +142,12 @@ describe('Browse', () => {
     await user.selectOptions(screen.getByLabelText('Sort'), 'price-desc')
     const list = await cardsWhen((found) => {
       expect(found).toHaveLength(12)
-      expect(found[0]).toHaveAttribute('data-price', '55')
+      expect(found[0]).toHaveAttribute('data-price', '89')
     })
 
     const prices = pricesOf(list)
-    expect(prices[0]).toBe(55)
-    expect(prices[prices.length - 1]).toBe(20)
+    expect(prices[0]).toBe(89)
+    expect(prices[prices.length - 1]).toBe(34)
     for (let index = 1; index < prices.length; index += 1) {
       expect(prices[index]).toBeLessThanOrEqual(prices[index - 1])
     }
@@ -158,7 +159,7 @@ describe('the nearby suggestion', () => {
     // Checked against the data rather than the DOM so every city and chip is
     // included: a "try nearby X" sentence is a promise that X has something.
     for (const city of CITIES) {
-      for (const price of ['under30', 'under45'] as const) {
+      for (const price of ['under50', 'under70'] as const) {
         const filters = { ...defaultFilters(), city, price }
         if (applyFilters(SAMPLE_FLEET, filters).length > 0) continue
         const nearby = NEARBY_CITY[city]
@@ -174,7 +175,7 @@ describe('the nearby suggestion', () => {
   })
 
   it('still names Fort Walton for the Destin case the founders specified', () => {
-    const filters = { ...defaultFilters(), city: 'Destin' as const, price: 'under30' as const }
+    const filters = { ...defaultFilters(), city: 'Destin' as const, price: 'under50' as const }
     expect(applyFilters(SAMPLE_FLEET, filters)).toHaveLength(0)
     expect(NEARBY_CITY.Destin).toBe('Fort Walton')
     expect(

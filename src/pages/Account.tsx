@@ -1,10 +1,14 @@
-import { useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { ConfirmBanner } from '../components/ConfirmBanner'
 import { EmptyState } from '../components/EmptyState'
 import { IconCheck, IconPencil, IconPin, IconTrash } from '../components/Icons'
+import { ModeSwitch } from '../components/ModeSwitch'
+import { PickupCountdown } from '../components/PickupCountdown'
 import { Sheet } from '../components/Sheet'
 import { VehicleSilhouette } from '../components/VehicleSilhouette'
-import { formatShortDate, formatUSD } from '../lib/pricing'
+import { PICKUP_WINDOW_HOURS, pickupStatus } from '../lib/pickup'
+import { commissionLabel, formatShortDate, formatUSD } from '../lib/pricing'
 import { siteConfig } from '../site.config'
 import { useAppData } from '../state/AppState'
 import { listingTitle, type City, type Listing, type Trip } from '../types'
@@ -337,7 +341,10 @@ function MyCars(): JSX.Element {
 }
 
 function TripRow({ trip, listing }: { trip: Trip; listing: Listing | undefined }): JSX.Element {
-  const body = (
+  const { confirmPickup, markCollected, pushToast } = useAppData()
+  const stage = pickupStatus(trip).stage
+
+  const summary = (
     <div className="p-3 sm:p-4">
       <div className="flex items-start gap-3 sm:gap-4">
         {listing ? (
@@ -369,14 +376,69 @@ function TripRow({ trip, listing }: { trip: Trip; listing: Listing | undefined }
   )
 
   return (
-    <li data-testid="trip-item" data-trip-id={trip.id} className="card overflow-hidden">
+    <li
+      data-testid="trip-item"
+      data-trip-id={trip.id}
+      data-pickup-stage={stage}
+      className="card relative overflow-hidden"
+    >
+      {/* The stage, read before the words are. */}
+      <span
+        aria-hidden="true"
+        className={`absolute inset-y-0 left-0 w-1 ${
+          stage === 'late'
+            ? 'bg-coral'
+            : stage === 'collected'
+              ? 'bg-emerald'
+              : stage === 'counting'
+                ? 'bg-gold'
+                : 'bg-line'
+        }`}
+      />
+      {/* Only the summary is a link. The pick-up controls sit outside it,
+          because a button inside a link is neither one thing nor the other. */}
       {listing ? (
         <Link to={`/car/${trip.listingId}`} className="focusable block rounded-2xl">
-          {body}
+          {summary}
         </Link>
       ) : (
-        body
+        summary
       )}
+
+      <div className="border-t border-line-soft bg-sand-50 px-3 py-3 sm:px-4">
+        {stage === 'unconfirmed' ? (
+          <ConfirmBanner
+            open
+            id={`pickup-${trip.id}`}
+            question="Are you sure you want to confirm this location?"
+            detail={`Picking up in ${trip.pickupCity}. Confirming starts your ${PICKUP_WINDOW_HOURS} hour pick-up window.`}
+            confirmLabel="Yes, confirm"
+            cancelLabel="Not yet"
+            onConfirm={() => {
+              confirmPickup(trip.id)
+              pushToast(`Pick-up confirmed in ${trip.pickupCity}. The ${PICKUP_WINDOW_HOURS} hour window has started.`)
+            }}
+            onCancel={() => undefined}
+          />
+        ) : (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <PickupCountdown trip={trip} compact />
+            {stage === 'collected' ? null : (
+              <button
+                type="button"
+                data-testid="mark-collected"
+                className="btn-ghost btn-sm shrink-0"
+                onClick={() => {
+                  markCollected(trip.id)
+                  pushToast('Marked as picked up. The clock has stopped.')
+                }}
+              >
+                Mark picked up
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </li>
   )
 }
@@ -413,18 +475,29 @@ export const TABS: { key: TabKey; label: string }[] = [
 ]
 
 function Account(): JSX.Element {
-  const { isSignedIn, session, signOut, openSignIn } = useAppData()
+  const { isSignedIn, session, signOut, openSignIn, isHost, mode, becomeHost } = useAppData()
   // "Go to Trips" on the request confirmation has to land on Trips, so the tab
-  // is addressable rather than always starting on My cars.
+  // is addressable rather than always starting on My cars. Without a tab in the
+  // URL it follows the side being viewed: a host lands on their cars, a guest
+  // on their trips.
   const [searchParams, setSearchParams] = useSearchParams()
-  const requestedTab: TabKey = searchParams.get('tab') === 'trips' ? 'trips' : 'cars'
+  const tabParam = searchParams.get('tab')
+  const requestedTab: TabKey =
+    tabParam === 'trips' ? 'trips' : tabParam === 'cars' ? 'cars' : mode === 'host' ? 'cars' : 'trips'
   const [tab, setTabState] = useState<TabKey>(requestedTab)
+
+  // Signing in, or switching sides, happens after this mounts, so the landing
+  // tab has to follow the mode rather than be decided once. An explicit tab in
+  // the URL still wins: it is someone asking for a particular panel.
+  useEffect(() => {
+    if (tabParam === 'cars' || tabParam === 'trips') return
+    setTabState(mode === 'host' ? 'cars' : 'trips')
+  }, [mode, tabParam])
 
   const setTab = (next: TabKey): void => {
     setTabState(next)
     const params = new URLSearchParams(searchParams)
-    if (next === 'cars') params.delete('tab')
-    else params.set('tab', next)
+    params.set('tab', next)
     setSearchParams(params, { replace: true })
   }
   const carsTabId = useId()
@@ -477,7 +550,9 @@ function Account(): JSX.Element {
             {initial}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="label-micro">Preview account - stored in this browser</p>
+            <p className="label-micro">
+              Preview account - {isHost ? 'Host' : 'Guest'} - stored in this browser
+            </p>
             <h1 className="mt-1 truncate font-display text-2xl font-extrabold text-ink">
               {session.name}
             </h1>
@@ -486,6 +561,41 @@ function Account(): JSX.Element {
             Sign out
           </button>
         </div>
+
+        {/* A host switches sides here; a guest is offered the other side. */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line-soft pt-4">
+          {isHost ? (
+            <>
+              <div className="min-w-0">
+                <p className="label-micro">Viewing as</p>
+                <p className="mt-0.5 text-[13px] leading-snug text-ink-muted">
+                  {mode === 'host'
+                    ? `Listing side. Touch Road keeps ${commissionLabel()} of what you earn.`
+                    : 'Renting side. Same account, the other half of the product.'}
+                </p>
+              </div>
+              <ModeSwitch className="shrink-0" testId="mode-switch-account" />
+            </>
+          ) : (
+            <>
+              <div className="min-w-0">
+                <p className="label-micro">Guest account</p>
+                <p className="mt-0.5 text-[13px] leading-snug text-ink-muted">
+                  {`Become a host to list a car. Touch Road keeps ${commissionLabel()} of what a rental earns you.`}
+                </p>
+              </div>
+              <button
+                type="button"
+                data-testid="become-host"
+                className="btn-primary btn-sm btn-glare shrink-0"
+                onClick={becomeHost}
+              >
+                Become a host
+              </button>
+            </>
+          )}
+        </div>
+
         <p className="mt-3 text-xs leading-relaxed text-ink-faint">
           Signing out clears the session. Your listings stay.
         </p>
