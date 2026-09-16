@@ -19,8 +19,10 @@ export function App() {
 
   return (
     <AppShell>
-      {/* Keyed on pathname so each route arrives with its own entrance. */}
-      <div key={location.pathname} className={reduced ? undefined : 'animate-fade-slide'}>
+      {/* Keyed on pathname so each route arrives with its own entrance. The
+          animation fills backwards, so it leaves no transform behind to become
+          a containing block for anything fixed inside the route. */}
+      <div key={location.pathname} className={reduced ? undefined : 'animate-route-in'}>
         <Routes location={location}>
           <Route path="/" element={<Browse />} />
           <Route path="/car/:id" element={<CarDetail />} />

@@ -52,9 +52,12 @@ describe('the sign-in sheet', () => {
 })
 
 describe('the account tabs', () => {
+  // Signs in as a host, because the tab a person lands on follows the side they
+  // are viewing and these tests are about the keyboard, not about the default.
   async function signIn(user: ReturnType<typeof userEvent.setup>) {
     await user.click(screen.getByRole('button', { name: /sign in to the preview/i }))
     await user.type(await screen.findByTestId('auth-name-input'), 'Dana')
+    await user.click(screen.getByTestId('role-host'))
     await user.click(screen.getByTestId('auth-submit'))
     await screen.findByTestId('account-signed-in')
   }

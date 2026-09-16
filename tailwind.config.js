@@ -293,6 +293,26 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(4px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // The confirmation banner and its pin.
+        'banner-in': {
+          '0%': { opacity: '0', transform: 'translateY(-10px) scaleY(0.96)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scaleY(1)' },
+        },
+        'pin-drop': {
+          '0%': { opacity: '0', transform: 'translateY(-14px) scale(0.6)' },
+          '58%': { transform: 'translateY(2px) scale(1.08)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        // Route changes: the page lifts in rather than cutting.
+        // The last couple of hours of a pick-up window.
+        'clock-urgent': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.06)' },
+        },
+        'route-in': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         'gull-cross': {
           '0%': { transform: 'translate(-8vw, 0)', opacity: '0' },
           '10%': { opacity: '1' },
@@ -342,6 +362,15 @@ export default {
         'month-in-left': 'month-in-left 260ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'popover-in': 'popover-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'gull-cross': 'gull-cross 13s linear both',
+        'banner-in': 'banner-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'pin-drop': 'pin-drop 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        // backwards, not both. A 'both' fill leaves the final keyframe's
+        // transform on the element forever, and any non-none transform makes it
+        // the containing block for every position:fixed descendant. That is what
+        // once left an in-route sheet positioned against the page instead of the
+        // viewport. With backwards the transform is gone the moment it lands.
+        'clock-urgent': 'clock-urgent 2.2s ease-in-out infinite',
+        'route-in': 'route-in 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards',
         'sun-ack': 'sun-ack 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'hint-in': 'hint-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both',
       },

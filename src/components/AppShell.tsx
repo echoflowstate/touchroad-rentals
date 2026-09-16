@@ -5,6 +5,8 @@ import { useAppData } from '../state/AppState'
 import { AuthSheet } from './AuthSheet'
 import { Footer } from './Footer'
 import { IconAccount, IconBrowse, IconHost, IconSteps } from './Icons'
+import { ModeSwitch } from './ModeSwitch'
+import { ToastHost } from './ToastHost'
 import { Logo } from './Logo'
 import { PreviewRibbon } from './PreviewRibbon'
 import { RoadLine } from './RoadLine'
@@ -76,7 +78,9 @@ function DesktopNav() {
           </ul>
         </nav>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
+          {/* A host can move between the two sides from anywhere. */}
+          <ModeSwitch testId="mode-switch-nav" />
           {isSignedIn && session ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-emerald py-1 pl-1 pr-3.5 text-[13px] font-semibold text-white">
               <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-deep font-mono text-[11px] uppercase leading-none text-white">
@@ -220,6 +224,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Footer />
       <BottomTabs />
       <AuthSheet />
+      <ToastHost />
     </div>
   )
 }

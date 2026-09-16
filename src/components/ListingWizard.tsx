@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { SAMPLE_FLEET } from '../data/fleet'
 import { useReducedMotion } from '../lib/motion'
 import { MagneticButton } from './MagneticButton'
-import { fleetAverageForClass, formatUSD } from '../lib/pricing'
+import { commissionLabel, fleetAverageForClass, formatUSD, hostPayout } from '../lib/pricing'
 import { siteConfig } from '../site.config'
 import { useAppData } from '../state/AppState'
 import { VEHICLE_CLASSES, listingTitle } from '../types'
@@ -260,6 +260,16 @@ export function ListingWizard(): JSX.Element {
     .join(' ')
   const blurbPreview = draft.blurb.trim() || `Listed by a neighbor in ${draft.city}.`
 
+  // What a single day of this rental actually leaves the host with, so the
+  // platform's share is visible before publishing rather than after.
+  const dayPayout = hostPayout(
+    draft.pricePerDay.trim() !== '' && Number.isFinite(priceNumber) ? priceNumber : 0,
+  )
+  const keepLabel =
+    dayPayout.gross > 0
+      ? `${formatUSD(dayPayout.net)} a day after ${commissionLabel()}`
+      : 'Not set yet'
+
   const reviewRows = [
     { label: 'Vehicle', value: composedTitle || 'Not set yet' },
     { label: 'Class', value: draft.vehicleClass },
@@ -268,6 +278,7 @@ export function ListingWizard(): JSX.Element {
     { label: 'Fuel', value: draft.fuel },
     { label: 'City', value: draft.city },
     { label: 'Price', value: priceLabel },
+    { label: 'You keep', value: keepLabel },
     { label: 'Your line', value: blurbPreview },
   ]
 

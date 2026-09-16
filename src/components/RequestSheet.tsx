@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom'
+import { PICKUP_WINDOW_HOURS } from '../lib/pickup'
 import { daysBetween, formatShortDate, formatUSD } from '../lib/pricing'
+import { ConfirmBanner } from './ConfirmBanner'
 import { IconCheck } from './Icons'
+import { PickupCountdown } from './PickupCountdown'
 import { Sheet } from './Sheet'
+import type { Trip } from '../types'
 
 export interface RequestSheetProps {
   open: boolean
@@ -11,6 +15,10 @@ export interface RequestSheetProps {
   startDate: string
   endDate: string
   total: number
+  /** The stored trip, once there is one. Drives the pick-up clock. */
+  trip?: Trip | null
+  /** Starts the 24 hour clock. */
+  onConfirmPickup?: () => void
 }
 
 export function RequestSheet({
@@ -21,8 +29,11 @@ export function RequestSheet({
   startDate,
   endDate,
   total,
+  trip = null,
+  onConfirmPickup,
 }: RequestSheetProps): JSX.Element {
   const days = daysBetween(startDate, endDate)
+  const awaitingPickup = trip !== null && trip.pickupConfirmedAt === null
 
   return (
     <Sheet
@@ -68,12 +79,39 @@ export function RequestSheet({
             </dd>
           </div>
           <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+            <dt className="label-micro">Pick up at</dt>
+            <dd className="text-sm font-semibold text-ink">{trip ? trip.pickupCity : '-'}</dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-3 px-4 py-3">
             <dt className="label-micro">Total</dt>
             <dd className="num font-display text-lg font-extrabold text-ink">
               {formatUSD(total)}
             </dd>
           </div>
         </dl>
+
+        {/* The location has to be agreed before the clock can start, so the
+            question is asked here rather than assumed from the listing. */}
+        {trip ? (
+          <div className="mt-5 text-left">
+            {awaitingPickup ? (
+              <ConfirmBanner
+                open
+                id="pickup-confirm"
+                question="Are you sure you want to confirm this location?"
+                detail={`Picking up in ${trip.pickupCity}. Confirming starts your ${PICKUP_WINDOW_HOURS} hour pick-up window.`}
+                confirmLabel="Yes, confirm"
+                cancelLabel="Not yet"
+                onConfirm={() => onConfirmPickup?.()}
+                onCancel={onClose}
+              />
+            ) : (
+              <div className="card-flat px-4 py-4">
+                <PickupCountdown trip={trip} />
+              </div>
+            )}
+          </div>
+        ) : null}
 
         <p className="mt-4 text-sm text-ink-muted">You can find this under Account, in Trips.</p>
       </div>

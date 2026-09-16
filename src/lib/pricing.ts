@@ -77,11 +77,46 @@ export function fleetAverageForClass(listings: Listing[], vehicleClass: VehicleC
   return Math.round(total / inClass.length)
 }
 
-/** Earnings teaser: rate times days rented in a month, nothing withheld. */
+/** Earnings teaser: rate times days rented in a month, before the platform share. */
 export function estimateMonthly(rate: number, daysPerMonth: number): number {
   const safeRate = Number.isFinite(rate) && rate > 0 ? rate : 0
   const safeDays = Number.isFinite(daysPerMonth) && daysPerMonth > 0 ? daysPerMonth : 0
   return Math.round(safeRate * safeDays)
+}
+
+/**
+ * The share Touch Road keeps of what a host earns.
+ *
+ * This is the only cut anywhere in the product, and it falls on the host side.
+ * A renter still pays the rate times the days and nothing else, which is what
+ * lets the $0 fees line and "the price you see is the price you drive" stay
+ * literally true on every renter-facing surface.
+ */
+export const HOST_COMMISSION_RATE = 0.05
+
+export interface HostPayout {
+  /** What the renter pays the host. */
+  gross: number
+  /** The platform share, rounded to whole dollars. */
+  commission: number
+  /** Gross minus the commission. */
+  net: number
+}
+
+/**
+ * Splits a host's earnings. The commission is rounded and the net is taken from
+ * the gross rather than computed separately, so the three numbers always add up
+ * on screen instead of being a dollar out from each other.
+ */
+export function hostPayout(gross: number): HostPayout {
+  const safe = Number.isFinite(gross) && gross > 0 ? Math.round(gross) : 0
+  const commission = Math.round(safe * HOST_COMMISSION_RATE)
+  return { gross: safe, commission, net: safe - commission }
+}
+
+/** "5%" for the copy, derived rather than typed twice. */
+export function commissionLabel(): string {
+  return `${Math.round(HOST_COMMISSION_RATE * 100)}%`
 }
 
 /** "Aug 27" - short, unambiguous, American order. */

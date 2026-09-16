@@ -94,7 +94,7 @@ describe('publishing a car through the wizard', () => {
       })
       const nudge = screen.getByTestId('wizard-price-nudge')
       expect(nudge.textContent).toContain('SUV')
-      expect(nudge.textContent).toContain('$42')
+      expect(nudge.textContent).toContain('$67')
       await user.type(screen.getByLabelText('Price a day'), '33')
       await user.click(screen.getByTestId('wizard-next'))
 

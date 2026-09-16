@@ -11,11 +11,11 @@ import {
 
 /** Ids read straight out of the seeded fleet, so the assertions name real records. */
 const ESCAPE_38 = 'sample-escape-destin'
-const SENTRA_25 = 'sample-sentra-crestview'
-const CLUBCAR_20 = 'sample-clubcar-maryesther'
-const EZGO_25 = 'sample-ezgo-shalimar'
+const SENTRA = 'sample-sentra-crestview'
+const CLUBCAR = 'sample-clubcar-maryesther'
+const EZGO = 'sample-ezgo-shalimar'
 const ELANTRA_MANUAL = 'sample-elantra-panamacity'
-const MUSTANG_55 = 'sample-mustang-sandestin'
+const MUSTANG = 'sample-mustang-sandestin'
 
 function withFilters(patch: Partial<Filters>): Filters {
   return { ...defaultFilters(), ...patch }
@@ -41,29 +41,29 @@ describe('the seeded fleet', () => {
 
 describe('price filtering', () => {
   it('reads the ceilings the chips promise', () => {
-    expect(priceCeiling('under30')).toBe(30)
-    expect(priceCeiling('under45')).toBe(45)
+    expect(priceCeiling('under50')).toBe(50)
+    expect(priceCeiling('under70')).toBe(70)
     expect(priceCeiling('any')).toBe(Number.POSITIVE_INFINITY)
   })
 
-  it('under $30 drops every listing at $30 or more', () => {
-    const results = applyFilters(SAMPLE_FLEET, withFilters({ price: 'under30' }))
+  it('under $50 drops every listing at $50 or more', () => {
+    const results = applyFilters(SAMPLE_FLEET, withFilters({ price: 'under50' }))
     expect(results.length).toBeGreaterThan(0)
     for (const listing of results) {
-      expect(listing.pricePerDay).toBeLessThan(30)
+      expect(listing.pricePerDay).toBeLessThan(50)
     }
   })
 
-  it('under $30 excludes the $38 Ford Escape and keeps the $25 Nissan Sentra', () => {
-    const ids = idsOf(applyFilters(SAMPLE_FLEET, withFilters({ price: 'under30' })))
+  it('under $50 excludes the $62 Ford Escape and keeps the $41 Nissan Sentra', () => {
+    const ids = idsOf(applyFilters(SAMPLE_FLEET, withFilters({ price: 'under50' })))
     expect(ids).not.toContain(ESCAPE_38)
-    expect(ids).toContain(SENTRA_25)
-    expect(ids).toContain(CLUBCAR_20)
+    expect(ids).toContain(SENTRA)
+    expect(ids).toContain(CLUBCAR)
     expect(ids.sort()).toEqual(
       [
-        CLUBCAR_20,
-        SENTRA_25,
-        EZGO_25,
+        CLUBCAR,
+        SENTRA,
+        EZGO,
         'sample-corolla-pensacola',
         'sample-civic-fortwalton',
       ].sort(),
@@ -71,9 +71,9 @@ describe('price filtering', () => {
   })
 
   it('knows when only the price chip is standing in the way', () => {
-    const destinUnder30 = withFilters({ city: 'Destin', price: 'under30' })
-    expect(applyFilters(SAMPLE_FLEET, destinUnder30)).toHaveLength(0)
-    expect(wouldMatchWithoutPrice(SAMPLE_FLEET, destinUnder30)).toBe(true)
+    const destinUnder50 = withFilters({ city: 'Destin', price: 'under50' })
+    expect(applyFilters(SAMPLE_FLEET, destinUnder50)).toHaveLength(0)
+    expect(wouldMatchWithoutPrice(SAMPLE_FLEET, destinUnder50)).toBe(true)
   })
 })
 
@@ -81,7 +81,7 @@ describe('class filtering', () => {
   it('isolates exactly the two golf carts and nothing else', () => {
     const results = applyFilters(SAMPLE_FLEET, withFilters({ vehicleClass: 'Golf cart' }))
     expect(results).toHaveLength(2)
-    expect(idsOf(results).sort()).toEqual([CLUBCAR_20, EZGO_25].sort())
+    expect(idsOf(results).sort()).toEqual([CLUBCAR, EZGO].sort())
     for (const listing of results) {
       expect(listing.vehicleClass).toBe('Golf cart')
     }
@@ -106,15 +106,15 @@ describe('sorting', () => {
       .slice()
       .sort((a, b) => a - b)
       .slice(0, 2)
-    expect(cheapest).toEqual([20, 25])
+    expect(cheapest).toEqual([34, 39])
     expect(pricesOf(applyFilters(SAMPLE_FLEET, defaultFilters())).slice(0, 2)).toEqual(cheapest)
   })
 
   it('flips the extremes on price high to low', () => {
     const results = applyFilters(SAMPLE_FLEET, withFilters({ sort: 'price-desc' }))
-    expect(results[0].id).toBe(MUSTANG_55)
-    expect(results[0].pricePerDay).toBe(55)
-    expect(results[results.length - 1].pricePerDay).toBe(20)
+    expect(results[0].id).toBe(MUSTANG)
+    expect(results[0].pricePerDay).toBe(89)
+    expect(results[results.length - 1].pricePerDay).toBe(34)
   })
 
   it('puts the highest createdAt first on newest', () => {
@@ -123,7 +123,7 @@ describe('sorting', () => {
       listing.createdAt > best.createdAt ? listing : best,
     )
     expect(results[0].id).toBe(newest.id)
-    expect(results[0].id).toBe(EZGO_25)
+    expect(results[0].id).toBe(EZGO)
     for (let index = 1; index < results.length; index += 1) {
       expect(results[index].createdAt).toBeLessThan(results[index - 1].createdAt)
     }
@@ -138,9 +138,9 @@ describe('the remaining chips', () => {
       expect(listing.seats).toBeGreaterThanOrEqual(5)
     }
     const ids = idsOf(results)
-    expect(ids).not.toContain(MUSTANG_55)
-    expect(ids).not.toContain(CLUBCAR_20)
-    expect(ids).not.toContain(EZGO_25)
+    expect(ids).not.toContain(MUSTANG)
+    expect(ids).not.toContain(CLUBCAR)
+    expect(ids).not.toContain(EZGO)
   })
 
   it('automatic only drops the manual Elantra', () => {
@@ -168,7 +168,7 @@ describe('the remaining chips', () => {
     expect(escape).toBeDefined()
     if (!escape) return
     expect(matchesFilters(escape, withFilters({ city: 'Destin' }))).toBe(true)
-    expect(matchesFilters(escape, withFilters({ city: 'Destin', price: 'under30' }))).toBe(false)
+    expect(matchesFilters(escape, withFilters({ city: 'Destin', price: 'under50' }))).toBe(false)
     expect(matchesFilters(escape, withFilters({ vehicleClass: 'Golf cart' }))).toBe(false)
   })
 })

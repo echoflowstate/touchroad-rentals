@@ -16,7 +16,7 @@ declare const process: { cwd(): string }
  * above it to prove they cannot be picked.
  */
 
-const CIVIC_29 = 'sample-civic-fortwalton'
+const CIVIC = 'sample-civic-fortwalton'
 const TODAY = new Date(2026, 2, 12, 12, 0, 0)
 
 function renderApp(route = '/') {
@@ -94,7 +94,7 @@ describe('the trip planner replaces every native date entry', () => {
   })
 
   it('renders the calculator dates as one planner field, not two inputs', () => {
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
 
     expect(document.querySelectorAll('input[type="date"]')).toHaveLength(0)
     expect(fieldText()).toContain('Mar 12 - Mar 15')
@@ -104,8 +104,8 @@ describe('the trip planner replaces every native date entry', () => {
 
 describe('picking a range', () => {
   it('spans two months, prints the range on the field, and re-prices the trip', async () => {
-    renderApp(`/car/${CIVIC_29}`)
-    expect(screen.getByTestId('odometer-value').textContent).toBe('$87')
+    renderApp(`/car/${CIVIC}`)
+    expect(screen.getByTestId('odometer-value').textContent).toBe('$141')
 
     fireEvent.click(trigger())
     const popover = await screen.findByTestId('date-popover')
@@ -124,15 +124,15 @@ describe('picking a range', () => {
 
     expect(fieldText()).toContain('Mar 25 - Apr 3 · 9 days')
     await waitFor(() => {
-      expect(screen.getByTestId('odometer-value').textContent).toBe('$261')
+      expect(screen.getByTestId('odometer-value').textContent).toBe('$423')
     })
     expect(
       (screen.getByTestId('calc-subtotal').textContent ?? '').replace(/\s+/g, ' '),
-    ).toContain('$29 × 9 days = $261')
+    ).toContain('$47 × 9 days = $423')
   })
 
   it('swaps the pair when the drop off is chosen before the pick up', async () => {
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
 
     fireEvent.click(trigger())
     const popover = await screen.findByTestId('date-popover')
@@ -143,12 +143,12 @@ describe('picking a range', () => {
       expect(fieldText()).toContain('Mar 22 - Mar 27 · 5 days')
     })
     await waitFor(() => {
-      expect(screen.getByTestId('odometer-value').textContent).toBe('$145')
+      expect(screen.getByTestId('odometer-value').textContent).toBe('$235')
     })
   })
 
   it('does nothing at all when a past day is clicked', async () => {
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
     const before = fieldText()
 
     fireEvent.click(trigger())
@@ -160,12 +160,12 @@ describe('picking a range', () => {
 
     expect(screen.getByTestId('date-popover')).toBeInTheDocument()
     expect(fieldText()).toBe(before)
-    expect(screen.getByTestId('odometer-value').textContent).toBe('$87')
+    expect(screen.getByTestId('odometer-value').textContent).toBe('$141')
   })
 
   it('completes a range from the keyboard alone', async () => {
     const user = userEvent.setup({ delay: null })
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
 
     trigger().focus()
     await user.keyboard('{Enter}')
@@ -186,7 +186,7 @@ describe('picking a range', () => {
     })
     expect(fieldText()).toContain('Mar 13 - Mar 20 · 7 days')
     await waitFor(() => {
-      expect(screen.getByTestId('odometer-value').textContent).toBe('$203')
+      expect(screen.getByTestId('odometer-value').textContent).toBe('$329')
     })
     // Closing hands focus back to the field that opened the planner.
     expect(document.activeElement).toBe(trigger())
@@ -194,7 +194,7 @@ describe('picking a range', () => {
 
   it('closes on Escape without applying anything', async () => {
     const user = userEvent.setup({ delay: null })
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
     const before = fieldText()
 
     fireEvent.click(trigger())
@@ -211,7 +211,7 @@ describe('picking a range', () => {
 describe('the road range', () => {
   it('draws a connector between the pick-up and drop-off cells', async () => {
     window.innerWidth = 390
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
 
     fireEvent.click(trigger())
     const sheet = await screen.findByRole('dialog')
@@ -244,7 +244,7 @@ describe('the road range', () => {
 
   it('counts a single day as one day on the road', async () => {
     window.innerWidth = 390
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
 
     fireEvent.click(trigger())
     const sheet = await screen.findByRole('dialog')
@@ -258,7 +258,7 @@ describe('the road range', () => {
 describe('the planner on a phone', () => {
   it('opens as a sheet with day cells at least 44px tall and applies on confirm', async () => {
     window.innerWidth = 390
-    renderApp(`/car/${CIVIC_29}`)
+    renderApp(`/car/${CIVIC}`)
 
     fireEvent.click(trigger())
     const sheet = await screen.findByRole('dialog')
@@ -280,11 +280,11 @@ describe('the planner on a phone', () => {
     // The sheet buffers the pick until confirm, unlike the desktop popover.
     fireEvent.click(dayCell(sheet, 'March 16, 2026'))
     fireEvent.click(dayCell(sheet, 'March 20, 2026'))
-    expect(screen.getByTestId('odometer-value').textContent).toBe('$87')
+    expect(screen.getByTestId('odometer-value').textContent).toBe('$141')
 
     fireEvent.click(confirm)
     await waitFor(() => {
-      expect(screen.getByTestId('odometer-value').textContent).toBe('$116')
+      expect(screen.getByTestId('odometer-value').textContent).toBe('$188')
     })
     expect(fieldText()).toContain('Mar 16 - Mar 20 · 4 days')
   })

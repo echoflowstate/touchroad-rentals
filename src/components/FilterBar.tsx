@@ -9,8 +9,8 @@ export interface FilterBarProps {
 }
 
 const PRICE_CHIPS: Array<{ value: PriceFilter; label: string }> = [
-  { value: 'under30', label: 'Under $30' },
-  { value: 'under45', label: 'Under $45' },
+  { value: 'under50', label: 'Under $50' },
+  { value: 'under70', label: 'Under $70' },
   { value: 'any', label: 'Any' },
 ]
 

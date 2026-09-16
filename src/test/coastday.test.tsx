@@ -216,6 +216,8 @@ describe('the search card', () => {
     renderApp('/')
     await screen.findByTestId('city-hint')
     fireEvent.change(screen.getByLabelText('Where'), { target: { value: 'Destin' } })
+    // The city is only chosen once the confirmation banner is answered.
+    fireEvent.click(await screen.findByTestId('confirm-banner-confirm'))
     await waitFor(() => {
       expect(screen.queryByTestId('city-hint')).not.toBeInTheDocument()
     })

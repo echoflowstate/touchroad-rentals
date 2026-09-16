@@ -38,9 +38,19 @@ export interface Listing {
   createdAt: number
 }
 
+/**
+ * Which side of the product an account belongs to. A guest rents; a host also
+ * lists. Signing up picks one, and a host can look at either.
+ */
+export type AccountRole = 'guest' | 'host'
+
 export interface Session {
   name: string
   signedInAt: number
+  /** What this account signed up as. A guest can become a host later. */
+  role: AccountRole
+  /** Which side they are looking at now. Only a host can hold 'host' here. */
+  mode: AccountRole
 }
 
 export interface Trip {
@@ -49,6 +59,16 @@ export interface Trip {
   listingTitle: string
   hostName: string
   city: City
+  /** Where the keys change hands. Confirmed separately from the request. */
+  pickupCity: City
+  /**
+   * When the pick-up location was confirmed, which is what starts the 24 hour
+   * clock. Null until the renter confirms, so the countdown never runs on a
+   * trip nobody has agreed a place for.
+   */
+  pickupConfirmedAt: number | null
+  /** When the car was actually collected. Null while the clock is running. */
+  pickedUpAt: number | null
   startDate: string
   endDate: string
   days: number
@@ -72,7 +92,7 @@ export interface ListingDraft {
   blurb: string
 }
 
-export type PriceFilter = 'any' | 'under30' | 'under45'
+export type PriceFilter = 'any' | 'under50' | 'under70'
 export type SortKey = 'price-asc' | 'price-desc' | 'newest'
 
 export interface Filters {
